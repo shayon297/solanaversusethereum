@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bitcoin Price Chart - Real Historical Data</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
+</head>
+<body>
+    <header>
+        <h1>Bitcoin Price Chart</h1>
+        <p>Real Historical Data (2013-2025)</p>
+        <nav style="margin-top: 1rem;">
+            <a href="index.html" style="color: white; text-decoration: none; background: rgba(255,255,255,0.2); padding: 0.5rem 1rem; border-radius: 4px;">← Back to Solana vs Ethereum</a>
+        </nav>
+    </header>
+
+    <main>
+        <section class="metric-section">
+            <h2>Bitcoin Price Over Time</h2>
+            <p class="source">Source: Real CSV Data | April 2013 - September 2025 | Daily Prices</p>
+            
+            <div class="chart-container">
+                <div class="chart-wrapper single">
+                    <h3>BTC/USD Price History</h3>
+                    <canvas id="btc-price-chart" style="height: 500px !important;"></canvas>
+                </div>
+            </div>
+
+            <div class="chart-container">
+                <div class="chart-wrapper">
+                    <h3>Market Cap</h3>
+                    <canvas id="btc-market-cap-chart"></canvas>
+                </div>
+                <div class="chart-wrapper">
+                    <h3>Trading Volume</h3>
+                    <canvas id="btc-volume-chart"></canvas>
+                </div>
+            </div>
+
+            <div id="data-summary" style="background: #f8f9fa; padding: 1.5rem; border-radius: 6px; margin-top: 2rem;">
+                <h3>Data Summary</h3>
+                <div id="summary-stats" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-top: 1rem;">
+                    <!-- Will be populated by JavaScript -->
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>Data loaded from: btc-usd-max.csv</p>
+        <p>Last updated: <span id="last-updated"></span></p>
+    </footer>
+
+    <script>
+        // Load and parse CSV data
+        async function loadBTCData() {
+            try {
+                const response = await fetch('btc-usd-max.csv');
+                const csvText = await response.text();
+                
+                // Parse CSV
+                const lines = csvText.trim().split('\n');
+                const headers = lines[0].split(',');
+                
+                const data = [];
+                for (let i = 1; i < lines.length; i++) {
+                    const values = lines[i].split(',');
+                    data.push({
+                        date: new Date(values[0]),
+                        price: parseFloat(values[1]),
+                        market_cap: parseFloat(values[2]),
+                        volume: parseFloat(values[3])
+                    });
+                }
+                
+                return data;
+            } catch (error) {
+                console.error('Error loading BTC data:', error);
+                return [];
+            }
+        }
+
+        // Create charts
+        async function createCharts() {
+            const data = await loadBTCData();
+            
+            if (data.length === 0) {
+                console.error('No data loaded');
+                return;
+            }
+
+            console.log(`Loaded ${data.length} data points from ${data[0].date.toDateString()} to ${data[data.length-1].date.toDateString()}`);
+
+            // Prepare data for Chart.js
+            const dates = data.map(d => d.date);
+            const prices = data.map(d => d.price);
+            const marketCaps = data.map(d => d.market_cap);
+            const volumes = data.map(d => d.volume);
+
+            // Chart configuration
+            const chartDefaults = {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'top'
+                    }
+                }
+            };
+
+            // Main BTC Price Chart
+            new Chart(document.getElementById('btc-price-chart'), {
+                type: 'line',
+                data: {
+                    labels: dates,
+                    datasets: [{
+                        label: 'BTC Price (USD)',
+                        data: prices,
+                        borderColor: '#f7931a',
+                        backgroundColor: 'rgba(247, 147, 26, 0.1)',
+                        fill: true,
+                        tension: 0.1,
+                        pointRadius: 0,
+                        pointHoverRadius: 5
+                    }]
+                },
+                options: {
+                    ...chartDefaults,
+                    scales: {
+                        x: {
+                            type: 'time',
+                            time: {
+                                unit: 'year'
+                            },
+                            title: {
+                                display: true,
+                                text: 'Date'
+                            }
+                        },
+                        y: {
+                            type: 'logarithmic',
+                            title: {
+                                display: true,
+                                text: 'Price (USD) - Log Scale'
+                            },
+                            ticks: {
+                                callback: function(value) {
+                                    if (value >= 1000) {
+                                        return '$' + (value / 1000).toFixed(0) + 'K';
+                                    }
+                                    return '$' + value.toFixed(0);
+                                }
+                            }
+                        }
+                    },
+                    plugins: {
+                        ...chartDefaults.plugins,
+                        title: {
+                            display: true,
+                            text: 'Bitcoin Price History (Log Scale)'
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return 'Price: $' + context.parsed.y.toLocaleString();
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Market Cap Chart
+            new Chart(document.getElementById('btc-market-cap-chart'), {
+                type: 'line',
+                data: {
+                    labels: dates,
+                    datasets: [{
+                        label: 'Market Cap (USD)',
+                        data: marketCaps,
+                        borderColor: '#627eea',
+                        backgroundColor: 'rgba(98, 126, 234, 0.1)',
+                        fill: true,
+                        tension: 0.1,
+                        pointRadius: 0
+                    }]
+                },
+                options: {
+                    ...chartDefaults,
+                    scales: {
+                        x: {
+                            type: 'time',
+                            time: {
+                                unit: 'year'
+                            }
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'Market Cap (USD)'
+                            },
+                            ticks: {
+                                callback: function(value) {
+                                    if (value >= 1000000000000) {
+                                        return '$' + (value / 1000000000000).toFixed(1) + 'T';
+                                    } else if (value >= 1000000000) {
+                                        return '$' + (value / 1000000000).toFixed(0) + 'B';
+                                    }
+                                    return '$' + (value / 1000000).toFixed(0) + 'M';
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Volume Chart
+            new Chart(document.getElementById('btc-volume-chart'), {
+                type: 'line',
+                data: {
+                    labels: dates,
+                    datasets: [{
+                        label: 'Trading Volume (USD)',
+                        data: volumes,
+                        borderColor: '#9945ff',
+                        backgroundColor: 'rgba(153, 69, 255, 0.1)',
+                        fill: true,
+                        tension: 0.1,
+                        pointRadius: 0
+                    }]
+                },
+                options: {
+                    ...chartDefaults,
+                    scales: {
+                        x: {
+                            type: 'time',
+                            time: {
+                                unit: 'year'
+                            }
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'Volume (USD)'
+                            },
+                            ticks: {
+                                callback: function(value) {
+                                    if (value >= 1000000000) {
+                                        return '$' + (value / 1000000000).toFixed(0) + 'B';
+                                    }
+                                    return '$' + (value / 1000000).toFixed(0) + 'M';
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Generate summary statistics
+            const currentPrice = prices[prices.length - 1];
+            const minPrice = Math.min(...prices);
+            const maxPrice = Math.max(...prices);
+            const currentMarketCap = marketCaps[marketCaps.length - 1];
+            
+            const summaryHTML = `
+                <div style="text-align: center;">
+                    <h4>Current Price</h4>
+                    <p style="font-size: 1.5rem; color: #f7931a; font-weight: bold;">$${currentPrice.toLocaleString()}</p>
+                </div>
+                <div style="text-align: center;">
+                    <h4>All-Time High</h4>
+                    <p style="font-size: 1.2rem; color: #27ae60;">$${maxPrice.toLocaleString()}</p>
+                </div>
+                <div style="text-align: center;">
+                    <h4>All-Time Low</h4>
+                    <p style="font-size: 1.2rem; color: #e74c3c;">$${minPrice.toLocaleString()}</p>
+                </div>
+                <div style="text-align: center;">
+                    <h4>Market Cap</h4>
+                    <p style="font-size: 1.2rem;">$${(currentMarketCap / 1000000000000).toFixed(2)}T</p>
+                </div>
+                <div style="text-align: center;">
+                    <h4>Data Points</h4>
+                    <p style="font-size: 1.2rem;">${data.length.toLocaleString()} days</p>
+                </div>
+            `;
+            
+            document.getElementById('summary-stats').innerHTML = summaryHTML;
+            document.getElementById('last-updated').textContent = new Date().toLocaleDateString();
+        }
+
+        // Initialize when page loads
+        document.addEventListener('DOMContentLoaded', createCharts);
+    </script>
+</body>
+</html>

@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Solana vs Ethereum - Core Metrics Comparison</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <header>
+        <h1>Solana vs Ethereum</h1>
+        <p>Core Metrics Comparison</p>
+    </header>
+
+    <main>
+        <!-- Real Economic Value -->
+        <section class="metric-section">
+            <h2>Real Economic Value</h2>
+            <p class="source">Source: <a href="https://blockworks.co/analytics" target="_blank">Blockworks</a> | 18 months | Absolute & Relative Values</p>
+            <div class="chart-container">
+                <div class="chart-wrapper">
+                    <h3>Solana</h3>
+                    <canvas id="solana-rev"></canvas>
+                </div>
+                <div class="chart-wrapper">
+                    <h3>Ethereum</h3>
+                    <canvas id="ethereum-rev"></canvas>
+                </div>
+            </div>
+            <div class="metric-highlight">
+                <p><strong>Definition:</strong> REV refers to Real Economic Value, or the total amount users are willing to pay to transact on a blockchain during a given period.</p>
+            </div>
+        </section>
+
+        <!-- Median and Average Fees -->
+        <section class="metric-section">
+            <h2>Median and Average Fees</h2>
+            <p class="source">Source: <a href="https://dune.com/" target="_blank">Dune</a> | 36 months | Absolute Values Only</p>
+            <div class="chart-container">
+                <div class="chart-wrapper">
+                    <h3>Solana</h3>
+                    <canvas id="solana-fees"></canvas>
+                </div>
+                <div class="chart-wrapper">
+                    <h3>Ethereum</h3>
+                    <canvas id="ethereum-fees"></canvas>
+                </div>
+            </div>
+        </section>
+
+        <!-- Total Application Revenue -->
+        <section class="metric-section">
+            <h2>Total Application Revenue</h2>
+            <p class="source">Source: <a href="https://defillama.com/" target="_blank">DefiLlama</a> | 18 months | Absolute & Relative Values</p>
+            <div class="chart-container">
+                <div class="chart-wrapper">
+                    <h3>Solana</h3>
+                    <canvas id="solana-app-rev"></canvas>
+                </div>
+                <div class="chart-wrapper">
+                    <h3>Ethereum</h3>
+                    <canvas id="ethereum-app-rev"></canvas>
+                </div>
+            </div>
+            <div class="chart-container">
+                <div class="chart-wrapper single">
+                    <h3>Relative Comparison</h3>
+                    <canvas id="app-rev-comparison"></canvas>
+                </div>
+            </div>
+        </section>
+
+        <!-- DEX Volumes -->
+        <section class="metric-section">
+            <h2>DEX Volumes</h2>
+            <p class="source">Source: <a href="https://blockworks.co/analytics" target="_blank">Blockworks</a> | 18 months | Absolute & Relative Values</p>
+            <div class="chart-container">
+                <div class="chart-wrapper">
+                    <h3>Solana</h3>
+                    <canvas id="solana-dex"></canvas>
+                </div>
+                <div class="chart-wrapper">
+                    <h3>Ethereum</h3>
+                    <canvas id="ethereum-dex"></canvas>
+                </div>
+            </div>
+            <div class="chart-container">
+                <div class="chart-wrapper single">
+                    <h3>Relative Comparison</h3>
+                    <canvas id="dex-comparison"></canvas>
+                </div>
+            </div>
+        </section>
+
+        <!-- Active Addresses -->
+        <section class="metric-section">
+            <h2>Active Addresses</h2>
+            <p class="source">Source: <a href="https://tokenterminal.com/" target="_blank">TokenTerminal</a> | 18 months | Monthly Absolute Values</p>
+            <div class="chart-container">
+                <div class="chart-wrapper">
+                    <h3>Solana (Monthly)</h3>
+                    <canvas id="solana-addresses"></canvas>
+                </div>
+                <div class="chart-wrapper">
+                    <h3>Ethereum (Daily)</h3>
+                    <canvas id="ethereum-addresses"></canvas>
+                </div>
+            </div>
+        </section>
+
+        <!-- Transaction Count -->
+        <section class="metric-section">
+            <h2>Transaction Count</h2>
+            <p class="source">Source: <a href="https://tokenterminal.com/" target="_blank">TokenTerminal</a> | 18 months | Daily Absolute Values</p>
+            <div class="chart-container">
+                <div class="chart-wrapper">
+                    <h3>Solana</h3>
+                    <canvas id="solana-transactions"></canvas>
+                </div>
+                <div class="chart-wrapper">
+                    <h3>Ethereum</h3>
+                    <canvas id="ethereum-transactions"></canvas>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>Data sources: Blockworks, Dune, DefiLlama, TokenTerminal</p>
+        <p>Last updated: <span id="last-updated"></span></p>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
