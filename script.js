@@ -491,120 +491,238 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // 4. DEX Volumes (18 months, absolute & relative) - Based on DEX aggregator data
-    // Solana DEX volume (Jupiter, Orca, Raydium) growing from ~$800M to ~$3.5B
-    const solanaDexData = [820, 950, 1250, 1580, 1850, 2150, 2480, 2850, 3150, 2980, 3250, 3480, 3650, 3420, 3580, 3750, 3520, 3680];
-    // Ethereum DEX volume (Uniswap, 1inch, SushiSwap) in the $8B-$25B range
-    const ethereumDexData = [8500, 9200, 12500, 15800, 18500, 21500, 24800, 22500, 19800, 17500, 20800, 23500, 25200, 24800, 23500, 25800, 24200, 25600];
-
-    new Chart(document.getElementById('solana-dex'), {
-        type: 'line',
-        data: {
-            labels: labels18,
-            datasets: [{
-                label: 'DEX Volume ($M)',
-                data: solanaDexData,
-                borderColor: solanaColor,
-                backgroundColor: solanaColorLight,
-                fill: true,
-                tension: 0.4
-            }]
-        },
-        options: {
-            ...chartDefaults,
-            plugins: {
-                ...chartDefaults.plugins,
-                title: {
-                    display: true,
-                    text: 'Solana - DEX Volumes'
+    // Load DEX Volumes data from CSV files
+    async function loadDEXVolumeData() {
+        try {
+            // Load Solana DEX Volume data
+            const solanaResponse = await fetch('DEX Volumes/Solana DEX Volume.csv');
+            const solanaText = await solanaResponse.text();
+            const solanaLines = solanaText.trim().split('\n');
+            
+            const solanaData = [];
+            for (let i = 1; i < solanaLines.length; i++) {
+                const [timestamp, date, volume] = solanaLines[i].split(',');
+                const dateObj = new Date(date);
+                // Filter to start from July 2024
+                if (dateObj >= new Date('2024-07-01')) {
+                    solanaData.push({
+                        date: date,
+                        value: parseFloat(volume)
+                    });
                 }
             }
-        }
-    });
-
-    new Chart(document.getElementById('ethereum-dex'), {
-        type: 'line',
-        data: {
-            labels: labels18,
-            datasets: [{
-                label: 'DEX Volume ($M)',
-                data: ethereumDexData,
-                borderColor: ethereumColor,
-                backgroundColor: ethereumColorLight,
-                fill: true,
-                tension: 0.4
-            }]
-        },
-        options: {
-            ...chartDefaults,
-            plugins: {
-                ...chartDefaults.plugins,
-                title: {
-                    display: true,
-                    text: 'Ethereum - DEX Volumes'
+            
+            // Load Ethereum DEX Volume data
+            const ethereumResponse = await fetch('DEX Volumes/Ethereum DEX Volume.csv');
+            const ethereumText = await ethereumResponse.text();
+            const ethereumLines = ethereumText.trim().split('\n');
+            
+            const ethereumData = [];
+            for (let i = 1; i < ethereumLines.length; i++) {
+                const [timestamp, date, volume] = ethereumLines[i].split(',');
+                const dateObj = new Date(date);
+                // Filter to start from July 2024
+                if (dateObj >= new Date('2024-07-01')) {
+                    ethereumData.push({
+                        date: date,
+                        value: parseFloat(volume)
+                    });
                 }
             }
+            
+            return { solana: solanaData, ethereum: ethereumData };
+        } catch (error) {
+            console.error('Error loading DEX Volume data:', error);
+            return null;
         }
-    });
+    }
 
-    new Chart(document.getElementById('dex-comparison'), {
-        type: 'line',
-        data: {
-            labels: labels18,
-            datasets: [
-                {
-                    label: 'Solana ($M)',
-                    data: solanaDexData,
+    // Initialize DEX Volume charts with real data
+    async function initializeDEXVolumeCharts() {
+        const dexData = await loadDEXVolumeData();
+        
+        if (!dexData) {
+            console.error('Failed to load DEX Volume data');
+            return;
+        }
+
+        // Extract dates and values, convert to millions
+        const solanaLabels = dexData.solana.map(d => new Date(d.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }));
+        const solanaValues = dexData.solana.map(d => d.value / 1000000); // Convert to millions
+        
+        const ethereumLabels = dexData.ethereum.map(d => new Date(d.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }));
+        const ethereumValues = dexData.ethereum.map(d => d.value / 1000000); // Convert to millions
+
+        // Create Solana DEX Volume Chart
+        new Chart(document.getElementById('solana-dex'), {
+            type: 'line',
+            data: {
+                labels: solanaLabels,
+                datasets: [{
+                    label: 'DEX Volume ($M)',
+                    data: solanaValues,
                     borderColor: solanaColor,
                     backgroundColor: solanaColorLight,
-                    fill: false,
-                    tension: 0.4
-                },
-                {
-                    label: 'Ethereum ($M)',
-                    data: ethereumDexData,
-                    borderColor: ethereumColor,
-                    backgroundColor: ethereumColorLight,
-                    fill: false,
+                    fill: true,
                     tension: 0.4,
-                    yAxisID: 'y1'
-                }
-            ]
-        },
-        options: {
-            ...chartDefaults,
-            scales: {
-                y: {
-                    type: 'linear',
-                    display: true,
-                    position: 'left',
+                    pointRadius: 1,
+                    pointHoverRadius: 5
+                }]
+            },
+            options: {
+                ...chartDefaults,
+                plugins: {
+                    ...chartDefaults.plugins,
                     title: {
                         display: true,
-                        text: 'Solana ($M)'
+                        text: 'Solana - DEX Volumes (July 2024+)'
                     }
                 },
-                y1: {
-                    type: 'linear',
-                    display: true,
-                    position: 'right',
-                    title: {
-                        display: true,
-                        text: 'Ethereum ($M)'
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Volume ($ Millions)'
+                        },
+                        ticks: {
+                            callback: function(value) {
+                                return '$' + value.toFixed(0) + 'M';
+                            }
+                        }
                     },
-                    grid: {
-                        drawOnChartArea: false,
-                    },
-                }
-            },
-            plugins: {
-                ...chartDefaults.plugins,
-                title: {
-                    display: true,
-                    text: 'DEX Volume Comparison'
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Date'
+                        }
+                    }
                 }
             }
-        }
-    });
+        });
+
+        // Create Ethereum DEX Volume Chart
+        new Chart(document.getElementById('ethereum-dex'), {
+            type: 'line',
+            data: {
+                labels: ethereumLabels,
+                datasets: [{
+                    label: 'DEX Volume ($M)',
+                    data: ethereumValues,
+                    borderColor: ethereumColor,
+                    backgroundColor: ethereumColorLight,
+                    fill: true,
+                    tension: 0.4,
+                    pointRadius: 1,
+                    pointHoverRadius: 5
+                }]
+            },
+            options: {
+                ...chartDefaults,
+                plugins: {
+                    ...chartDefaults.plugins,
+                    title: {
+                        display: true,
+                        text: 'Ethereum - DEX Volumes (July 2024+)'
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Volume ($ Millions)'
+                        },
+                        ticks: {
+                            callback: function(value) {
+                                return '$' + value.toFixed(0) + 'M';
+                            }
+                        }
+                    },
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Date'
+                        }
+                    }
+                }
+            }
+        });
+
+        // Create DEX Volume Comparison Chart
+        new Chart(document.getElementById('dex-comparison'), {
+            type: 'line',
+            data: {
+                labels: solanaLabels.length >= ethereumLabels.length ? solanaLabels : ethereumLabels,
+                datasets: [
+                    {
+                        label: 'Solana ($M)',
+                        data: solanaValues,
+                        borderColor: solanaColor,
+                        backgroundColor: solanaColorLight,
+                        fill: false,
+                        tension: 0.4,
+                        pointRadius: 1,
+                        pointHoverRadius: 5
+                    },
+                    {
+                        label: 'Ethereum ($M)',
+                        data: ethereumValues,
+                        borderColor: ethereumColor,
+                        backgroundColor: ethereumColorLight,
+                        fill: false,
+                        tension: 0.4,
+                        pointRadius: 1,
+                        pointHoverRadius: 5,
+                        yAxisID: 'y1'
+                    }
+                ]
+            },
+            options: {
+                ...chartDefaults,
+                scales: {
+                    y: {
+                        type: 'linear',
+                        display: true,
+                        position: 'left',
+                        title: {
+                            display: true,
+                            text: 'Solana Volume ($M)'
+                        },
+                        ticks: {
+                            callback: function(value) {
+                                return '$' + value.toFixed(0) + 'M';
+                            }
+                        }
+                    },
+                    y1: {
+                        type: 'linear',
+                        display: true,
+                        position: 'right',
+                        title: {
+                            display: true,
+                            text: 'Ethereum Volume ($M)'
+                        },
+                        grid: {
+                            drawOnChartArea: false,
+                        },
+                        ticks: {
+                            callback: function(value) {
+                                return '$' + value.toFixed(0) + 'M';
+                            }
+                        }
+                    }
+                },
+                plugins: {
+                    ...chartDefaults.plugins,
+                    title: {
+                        display: true,
+                        text: 'DEX Volume Comparison (July 2024+)'
+                    }
+                }
+            }
+        });
+    }
 
     // 5. Active Addresses (18 months, monthly absolute) - Based on TokenTerminal data
     // Solana monthly active addresses growing from ~800K to ~2.5M
@@ -660,95 +778,176 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // 6. Transaction Count (18 months, daily absolute) - Based on actual TPS and daily volumes
-    // Solana daily transactions: ~20M-50M per day (high TPS network)
-    const solanaTransactionsData = [22000000, 28500000, 35200000, 42800000, 45600000, 48200000, 51800000, 49500000, 46200000, 43800000, 47200000, 50800000, 52500000, 49800000, 48200000, 51200000, 49600000, 50800000];
-    // Ethereum daily transactions: ~1M-1.5M per day (limited by gas and block size)
-    const ethereumTransactionsData = [1050000, 1120000, 1280000, 1350000, 1420000, 1480000, 1520000, 1450000, 1380000, 1320000, 1390000, 1460000, 1520000, 1480000, 1440000, 1500000, 1470000, 1510000];
-
-    new Chart(document.getElementById('solana-transactions'), {
-        type: 'line',
-        data: {
-            labels: labels18,
-            datasets: [{
-                label: 'Daily Transactions',
-                data: solanaTransactionsData,
-                borderColor: solanaColor,
-                backgroundColor: solanaColorLight,
-                fill: true,
-                tension: 0.4
-            }]
-        },
-        options: {
-            ...chartDefaults,
-            plugins: {
-                ...chartDefaults.plugins,
-                title: {
-                    display: true,
-                    text: 'Solana - Daily Transaction Count'
+    // Load Transactions data from CSV files
+    async function loadTransactionData() {
+        try {
+            // Load Solana Transaction data
+            const solanaResponse = await fetch('Transactions/Solana Transactions.csv');
+            const solanaText = await solanaResponse.text();
+            const solanaLines = solanaText.trim().split('\n');
+            
+            const solanaData = [];
+            for (let i = 1; i < solanaLines.length; i++) {
+                const [timestamp, date, transactions] = solanaLines[i].split(',');
+                const dateObj = new Date(date);
+                // Filter to start from July 2024
+                if (dateObj >= new Date('2024-07-01')) {
+                    solanaData.push({
+                        date: date,
+                        value: parseFloat(transactions)
+                    });
                 }
+            }
+            
+            // Load Ethereum Transaction data
+            const ethereumResponse = await fetch('Transactions/Ethereum Transactions.csv');
+            const ethereumText = await ethereumResponse.text();
+            const ethereumLines = ethereumText.trim().split('\n');
+            
+            const ethereumData = [];
+            for (let i = 1; i < ethereumLines.length; i++) {
+                const [timestamp, date, transactions] = ethereumLines[i].split(',');
+                const dateObj = new Date(date);
+                // Filter to start from July 2024
+                if (dateObj >= new Date('2024-07-01')) {
+                    ethereumData.push({
+                        date: date,
+                        value: parseFloat(transactions)
+                    });
+                }
+            }
+            
+            return { solana: solanaData, ethereum: ethereumData };
+        } catch (error) {
+            console.error('Error loading Transaction data:', error);
+            return null;
+        }
+    }
+
+    // Initialize Transaction charts with real data
+    async function initializeTransactionCharts() {
+        const txData = await loadTransactionData();
+        
+        if (!txData) {
+            console.error('Failed to load Transaction data');
+            return;
+        }
+
+        // Extract dates and values
+        const solanaLabels = txData.solana.map(d => new Date(d.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }));
+        const solanaValues = txData.solana.map(d => d.value); // Keep as raw transaction count
+        
+        const ethereumLabels = txData.ethereum.map(d => new Date(d.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }));
+        const ethereumValues = txData.ethereum.map(d => d.value); // Keep as raw transaction count
+
+        // Create Solana Transaction Chart
+        new Chart(document.getElementById('solana-transactions'), {
+            type: 'line',
+            data: {
+                labels: solanaLabels,
+                datasets: [{
+                    label: 'Daily Transactions',
+                    data: solanaValues,
+                    borderColor: solanaColor,
+                    backgroundColor: solanaColorLight,
+                    fill: true,
+                    tension: 0.4,
+                    pointRadius: 1,
+                    pointHoverRadius: 5
+                }]
             },
-            scales: {
-                y: {
-                    beginAtZero: true,
+            options: {
+                ...chartDefaults,
+                plugins: {
+                    ...chartDefaults.plugins,
                     title: {
                         display: true,
-                        text: 'Daily Transactions (Millions)'
+                        text: 'Solana - Daily Transaction Count (July 2024+)'
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Daily Transactions (Millions)'
+                        },
+                        ticks: {
+                            callback: function(value) {
+                                return (value / 1000000).toFixed(1) + 'M';
+                            }
+                        }
                     },
-                    ticks: {
-                        callback: function(value) {
-                            return (value / 1000000).toFixed(1) + 'M';
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Date'
                         }
                     }
                 }
             }
-        }
-    });
+        });
 
-    new Chart(document.getElementById('ethereum-transactions'), {
-        type: 'line',
-        data: {
-            labels: labels18,
-            datasets: [{
-                label: 'Daily Transactions',
-                data: ethereumTransactionsData,
-                borderColor: ethereumColor,
-                backgroundColor: ethereumColorLight,
-                fill: true,
-                tension: 0.4
-            }]
-        },
-        options: {
-            ...chartDefaults,
-            plugins: {
-                ...chartDefaults.plugins,
-                title: {
-                    display: true,
-                    text: 'Ethereum - Daily Transaction Count'
-                }
+        // Create Ethereum Transaction Chart
+        new Chart(document.getElementById('ethereum-transactions'), {
+            type: 'line',
+            data: {
+                labels: ethereumLabels,
+                datasets: [{
+                    label: 'Daily Transactions',
+                    data: ethereumValues,
+                    borderColor: ethereumColor,
+                    backgroundColor: ethereumColorLight,
+                    fill: true,
+                    tension: 0.4,
+                    pointRadius: 1,
+                    pointHoverRadius: 5
+                }]
             },
-            scales: {
-                y: {
-                    beginAtZero: true,
+            options: {
+                ...chartDefaults,
+                plugins: {
+                    ...chartDefaults.plugins,
                     title: {
                         display: true,
-                        text: 'Daily Transactions (Millions)'
+                        text: 'Ethereum - Daily Transaction Count (July 2024+)'
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Daily Transactions (Millions)'
+                        },
+                        ticks: {
+                            callback: function(value) {
+                                return (value / 1000000).toFixed(1) + 'M';
+                            }
+                        }
                     },
-                    ticks: {
-                        callback: function(value) {
-                            return (value / 1000000).toFixed(1) + 'M';
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Date'
                         }
                     }
                 }
             }
-        }
-    });
+        });
+    }
 
     // Initialize REV charts with real data
     initializeREVCharts();
     
     // Initialize App Revenue charts with real data
     initializeAppRevenueCharts();
+    
+    // Initialize DEX Volume charts with real data
+    initializeDEXVolumeCharts();
+    
+    // Initialize Transaction charts with real data
+    initializeTransactionCharts();
     
     console.log('All charts initialized successfully');
 });
