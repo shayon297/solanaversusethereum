@@ -724,59 +724,158 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // 5. Active Addresses (18 months, monthly absolute) - Based on TokenTerminal data
-    // Solana monthly active addresses growing from ~800K to ~2.5M
-    const solanaAddressesData = [820000, 950000, 1250000, 1580000, 1850000, 2150000, 2280000, 2450000, 2350000, 2180000, 2320000, 2480000, 2520000, 2380000, 2420000, 2550000, 2480000, 2520000];
-    // Ethereum daily active addresses (note: different metric) ~350K-600K daily
-    const ethereumAddressesData = [350000, 380000, 420000, 480000, 520000, 580000, 620000, 590000, 550000, 520000, 560000, 600000, 630000, 610000, 590000, 620000, 600000, 615000];
-
-    new Chart(document.getElementById('solana-addresses'), {
-        type: 'bar',
-        data: {
-            labels: labels18,
-            datasets: [{
-                label: 'Monthly Active Addresses',
-                data: solanaAddressesData,
-                backgroundColor: solanaColorLight,
-                borderColor: solanaColor,
-                borderWidth: 1
-            }]
-        },
-        options: {
-            ...chartDefaults,
-            plugins: {
-                ...chartDefaults.plugins,
-                title: {
-                    display: true,
-                    text: 'Solana - Monthly Active Addresses'
+    // Load Active Addresses data from CSV files
+    async function loadActiveAddressesData() {
+        try {
+            // Load Solana Active Addresses data
+            const solanaResponse = await fetch('Active Addresses/Solana Active Addresses.csv');
+            const solanaText = await solanaResponse.text();
+            const solanaLines = solanaText.trim().split('\n');
+            
+            const solanaData = [];
+            for (let i = 1; i < solanaLines.length; i++) {
+                const [timestamp, date, addresses] = solanaLines[i].split(',');
+                const dateObj = new Date(date);
+                // Filter to start from July 2024
+                if (dateObj >= new Date('2024-07-01')) {
+                    solanaData.push({
+                        date: date,
+                        value: parseFloat(addresses)
+                    });
                 }
             }
-        }
-    });
-
-    new Chart(document.getElementById('ethereum-addresses'), {
-        type: 'bar',
-        data: {
-            labels: labels18,
-            datasets: [{
-                label: 'Daily Active Addresses',
-                data: ethereumAddressesData,
-                backgroundColor: ethereumColorLight,
-                borderColor: ethereumColor,
-                borderWidth: 1
-            }]
-        },
-        options: {
-            ...chartDefaults,
-            plugins: {
-                ...chartDefaults.plugins,
-                title: {
-                    display: true,
-                    text: 'Ethereum - Daily Active Addresses'
+            
+            // Load Ethereum Active Addresses data
+            const ethereumResponse = await fetch('Active Addresses/Ethereum Active Addresses.csv');
+            const ethereumText = await ethereumResponse.text();
+            const ethereumLines = ethereumText.trim().split('\n');
+            
+            const ethereumData = [];
+            for (let i = 1; i < ethereumLines.length; i++) {
+                const [timestamp, date, addresses] = ethereumLines[i].split(',');
+                const dateObj = new Date(date);
+                // Filter to start from July 2024
+                if (dateObj >= new Date('2024-07-01')) {
+                    ethereumData.push({
+                        date: date,
+                        value: parseFloat(addresses)
+                    });
                 }
             }
+            
+            return { solana: solanaData, ethereum: ethereumData };
+        } catch (error) {
+            console.error('Error loading Active Addresses data:', error);
+            return null;
         }
-    });
+    }
+
+    // Initialize Active Addresses charts with real data
+    async function initializeActiveAddressesCharts() {
+        const addressData = await loadActiveAddressesData();
+        
+        if (!addressData) {
+            console.error('Failed to load Active Addresses data');
+            return;
+        }
+
+        // Extract dates and values
+        const solanaLabels = addressData.solana.map(d => new Date(d.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }));
+        const solanaValues = addressData.solana.map(d => d.value); // Keep as raw address count
+        
+        const ethereumLabels = addressData.ethereum.map(d => new Date(d.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }));
+        const ethereumValues = addressData.ethereum.map(d => d.value); // Keep as raw address count
+
+        // Create Solana Active Addresses Chart
+        new Chart(document.getElementById('solana-addresses'), {
+            type: 'bar',
+            data: {
+                labels: solanaLabels,
+                datasets: [{
+                    label: 'Daily Active Addresses',
+                    data: solanaValues,
+                    backgroundColor: solanaColorLight,
+                    borderColor: solanaColor,
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                ...chartDefaults,
+                plugins: {
+                    ...chartDefaults.plugins,
+                    title: {
+                        display: true,
+                        text: 'Solana - Daily Active Addresses (July 2024+)'
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Active Addresses (Thousands)'
+                        },
+                        ticks: {
+                            callback: function(value) {
+                                return (value / 1000).toFixed(0) + 'K';
+                            }
+                        }
+                    },
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Date'
+                        }
+                    }
+                }
+            }
+        });
+
+        // Create Ethereum Active Addresses Chart
+        new Chart(document.getElementById('ethereum-addresses'), {
+            type: 'bar',
+            data: {
+                labels: ethereumLabels,
+                datasets: [{
+                    label: 'Daily Active Addresses',
+                    data: ethereumValues,
+                    backgroundColor: ethereumColorLight,
+                    borderColor: ethereumColor,
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                ...chartDefaults,
+                plugins: {
+                    ...chartDefaults.plugins,
+                    title: {
+                        display: true,
+                        text: 'Ethereum - Daily Active Addresses (July 2024+)'
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Active Addresses (Thousands)'
+                        },
+                        ticks: {
+                            callback: function(value) {
+                                return (value / 1000).toFixed(0) + 'K';
+                            }
+                        }
+                    },
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Date'
+                        }
+                    }
+                }
+            }
+        });
+    }
 
     // Load Transactions data from CSV files
     async function loadTransactionData() {
@@ -948,6 +1047,9 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Initialize Transaction charts with real data
     initializeTransactionCharts();
+    
+    // Initialize Active Addresses charts with real data
+    initializeActiveAddressesCharts();
     
     console.log('All charts initialized successfully');
 });
