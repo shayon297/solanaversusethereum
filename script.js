@@ -284,92 +284,212 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // 3. Total Application Revenue (18 months, absolute & relative) - Based on DeFiLlama data
-    // Solana app revenue growing from ~$5M to ~$45M
-    const solanaAppRevData = [5.2, 4.8, 7.5, 12.8, 18.5, 22.1, 28.5, 32.8, 38.5, 35.2, 41.8, 45.2, 48.5, 44.8, 42.1, 46.5, 43.2, 47.8];
-    // Ethereum app revenue in the $300M-$800M range
-    const ethereumAppRevData = [320, 380, 450, 520, 580, 650, 720, 680, 620, 580, 640, 720, 780, 820, 760, 800, 850, 820];
-
-    new Chart(document.getElementById('solana-app-rev'), {
-        type: 'bar',
-        data: {
-            labels: labels18,
-            datasets: [{
-                label: 'App Revenue ($M)',
-                data: solanaAppRevData,
-                backgroundColor: solanaColorLight,
-                borderColor: solanaColor,
-                borderWidth: 1
-            }]
-        },
-        options: {
-            ...chartDefaults,
-            plugins: {
-                ...chartDefaults.plugins,
-                title: {
-                    display: true,
-                    text: 'Solana - Total Application Revenue'
+    // Load App Revenue data from CSV files
+    async function loadAppRevenueData() {
+        try {
+            // Load Solana App Revenue data
+            const solanaResponse = await fetch('App Revenue Charts/SOL App Revenue.csv');
+            const solanaText = await solanaResponse.text();
+            const solanaLines = solanaText.trim().split('\n');
+            
+            const solanaData = [];
+            for (let i = 1; i < solanaLines.length; i++) {
+                const [timestamp, date, revenue] = solanaLines[i].split(',');
+                const dateObj = new Date(date);
+                // Filter to start from July 2024
+                if (dateObj >= new Date('2024-07-01')) {
+                    solanaData.push({
+                        date: date,
+                        value: parseFloat(revenue)
+                    });
                 }
             }
-        }
-    });
-
-    new Chart(document.getElementById('ethereum-app-rev'), {
-        type: 'bar',
-        data: {
-            labels: labels18,
-            datasets: [{
-                label: 'App Revenue ($M)',
-                data: ethereumAppRevData,
-                backgroundColor: ethereumColorLight,
-                borderColor: ethereumColor,
-                borderWidth: 1
-            }]
-        },
-        options: {
-            ...chartDefaults,
-            plugins: {
-                ...chartDefaults.plugins,
-                title: {
-                    display: true,
-                    text: 'Ethereum - Total Application Revenue'
+            
+            // Load Ethereum App Revenue data
+            const ethereumResponse = await fetch('App Revenue Charts/Ethereum App Revenue.csv');
+            const ethereumText = await ethereumResponse.text();
+            const ethereumLines = ethereumText.trim().split('\n');
+            
+            const ethereumData = [];
+            for (let i = 1; i < ethereumLines.length; i++) {
+                const [timestamp, date, revenue] = ethereumLines[i].split(',');
+                const dateObj = new Date(date);
+                // Filter to start from July 2024
+                if (dateObj >= new Date('2024-07-01')) {
+                    ethereumData.push({
+                        date: date,
+                        value: parseFloat(revenue)
+                    });
                 }
             }
+            
+            return { solana: solanaData, ethereum: ethereumData };
+        } catch (error) {
+            console.error('Error loading App Revenue data:', error);
+            return null;
         }
-    });
+    }
 
-    new Chart(document.getElementById('app-rev-comparison'), {
-        type: 'bar',
-        data: {
-            labels: labels18,
-            datasets: [
-                {
-                    label: 'Solana ($M)',
-                    data: solanaAppRevData,
+    // Initialize App Revenue charts with real data
+    async function initializeAppRevenueCharts() {
+        const appRevData = await loadAppRevenueData();
+        
+        if (!appRevData) {
+            console.error('Failed to load App Revenue data');
+            return;
+        }
+
+        // Extract dates and values, convert to millions
+        const solanaLabels = appRevData.solana.map(d => new Date(d.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }));
+        const solanaValues = appRevData.solana.map(d => d.value / 1000000); // Convert to millions
+        
+        const ethereumLabels = appRevData.ethereum.map(d => new Date(d.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }));
+        const ethereumValues = appRevData.ethereum.map(d => d.value / 1000000); // Convert to millions
+
+        // Create Solana App Revenue Chart
+        new Chart(document.getElementById('solana-app-rev'), {
+            type: 'bar',
+            data: {
+                labels: solanaLabels,
+                datasets: [{
+                    label: 'App Revenue ($M)',
+                    data: solanaValues,
                     backgroundColor: solanaColorLight,
                     borderColor: solanaColor,
                     borderWidth: 1
+                }]
+            },
+            options: {
+                ...chartDefaults,
+                plugins: {
+                    ...chartDefaults.plugins,
+                    title: {
+                        display: true,
+                        text: 'Solana - Total Application Revenue (July 2024+)'
+                    }
                 },
-                {
-                    label: 'Ethereum ($M)',
-                    data: ethereumAppRevData,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Revenue ($ Millions)'
+                        },
+                        ticks: {
+                            callback: function(value) {
+                                return '$' + value.toFixed(1) + 'M';
+                            }
+                        }
+                    },
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Date'
+                        }
+                    }
+                }
+            }
+        });
+
+        // Create Ethereum App Revenue Chart
+        new Chart(document.getElementById('ethereum-app-rev'), {
+            type: 'bar',
+            data: {
+                labels: ethereumLabels,
+                datasets: [{
+                    label: 'App Revenue ($M)',
+                    data: ethereumValues,
                     backgroundColor: ethereumColorLight,
                     borderColor: ethereumColor,
                     borderWidth: 1
-                }
-            ]
-        },
-        options: {
-            ...chartDefaults,
-            plugins: {
-                ...chartDefaults.plugins,
-                title: {
-                    display: true,
-                    text: 'Application Revenue Comparison'
+                }]
+            },
+            options: {
+                ...chartDefaults,
+                plugins: {
+                    ...chartDefaults.plugins,
+                    title: {
+                        display: true,
+                        text: 'Ethereum - Total Application Revenue (July 2024+)'
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Revenue ($ Millions)'
+                        },
+                        ticks: {
+                            callback: function(value) {
+                                return '$' + value.toFixed(0) + 'M';
+                            }
+                        }
+                    },
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Date'
+                        }
+                    }
                 }
             }
-        }
-    });
+        });
+
+        // Create App Revenue Comparison Chart
+        new Chart(document.getElementById('app-rev-comparison'), {
+            type: 'bar',
+            data: {
+                labels: solanaLabels.length >= ethereumLabels.length ? solanaLabels : ethereumLabels,
+                datasets: [
+                    {
+                        label: 'Solana ($M)',
+                        data: solanaValues,
+                        backgroundColor: solanaColorLight,
+                        borderColor: solanaColor,
+                        borderWidth: 1
+                    },
+                    {
+                        label: 'Ethereum ($M)',
+                        data: ethereumValues,
+                        backgroundColor: ethereumColorLight,
+                        borderColor: ethereumColor,
+                        borderWidth: 1
+                    }
+                ]
+            },
+            options: {
+                ...chartDefaults,
+                plugins: {
+                    ...chartDefaults.plugins,
+                    title: {
+                        display: true,
+                        text: 'Application Revenue Comparison (July 2024+)'
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Revenue ($ Millions)'
+                        },
+                        ticks: {
+                            callback: function(value) {
+                                return '$' + value.toFixed(0) + 'M';
+                            }
+                        }
+                    },
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Date'
+                        }
+                    }
+                }
+            }
+        });
+    }
 
     // 4. DEX Volumes (18 months, absolute & relative) - Based on DEX aggregator data
     // Solana DEX volume (Jupiter, Orca, Raydium) growing from ~$800M to ~$3.5B
@@ -626,6 +746,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Initialize REV charts with real data
     initializeREVCharts();
+    
+    // Initialize App Revenue charts with real data
+    initializeAppRevenueCharts();
     
     console.log('All charts initialized successfully');
 });
