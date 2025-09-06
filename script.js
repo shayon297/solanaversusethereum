@@ -4,14 +4,36 @@ document.addEventListener('DOMContentLoaded', function() {
     // Update last updated timestamp
     document.getElementById('last-updated').textContent = new Date().toLocaleDateString();
     
-    // Common chart configuration
+    // Common chart configuration with enhanced interactivity
     const chartDefaults = {
         responsive: true,
         maintainAspectRatio: false,
+        interaction: {
+            intersect: false,
+            mode: 'index'
+        },
         plugins: {
             legend: {
                 display: true,
-                position: 'top'
+                position: 'top',
+                labels: {
+                    usePointStyle: true,
+                    padding: 20
+                }
+            },
+            tooltip: {
+                backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                titleColor: 'white',
+                bodyColor: 'white',
+                borderColor: 'rgba(255, 255, 255, 0.2)',
+                borderWidth: 1,
+                cornerRadius: 8,
+                displayColors: true,
+                callbacks: {
+                    title: function(context) {
+                        return context[0].label;
+                    }
+                }
             }
         },
         scales: {
@@ -25,6 +47,18 @@ document.addEventListener('DOMContentLoaded', function() {
                 grid: {
                     color: 'rgba(0,0,0,0.1)'
                 }
+            }
+        },
+        elements: {
+            point: {
+                radius: 3,
+                hoverRadius: 8,
+                borderWidth: 2,
+                hoverBorderWidth: 3
+            },
+            line: {
+                borderWidth: 3,
+                tension: 0.4
             }
         }
     };
@@ -1036,20 +1070,181 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Initialize REV charts with real data
+    // Create comparison charts for the new layout
+    async function createComparisonCharts() {
+        // Wait for all data to load
+        const [txData, addressData, dexData] = await Promise.all([
+            loadTransactionData(),
+            loadActiveAddressesData(),
+            loadDEXVolumeData()
+        ]);
+
+        if (!txData || !addressData || !dexData) {
+            console.error('Failed to load comparison data');
+            return;
+        }
+
+        // Transaction Comparison Chart
+        const txLabels = txData.solana.map(d => new Date(d.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }));
+        new Chart(document.getElementById('transaction-comparison'), {
+            type: 'line',
+            data: {
+                labels: txLabels,
+                datasets: [
+                    {
+                        label: 'Solana (Millions)',
+                        data: txData.solana.map(d => d.value / 1000000),
+                        borderColor: solanaColor,
+                        backgroundColor: solanaColorLight,
+                        fill: false,
+                        tension: 0.4,
+                        pointRadius: 2,
+                        pointHoverRadius: 8
+                    },
+                    {
+                        label: 'Ethereum (Millions)',
+                        data: txData.ethereum.map(d => d.value / 1000000),
+                        borderColor: ethereumColor,
+                        backgroundColor: ethereumColorLight,
+                        fill: false,
+                        tension: 0.4,
+                        pointRadius: 2,
+                        pointHoverRadius: 8
+                    }
+                ]
+            },
+            options: {
+                ...chartDefaults,
+                plugins: {
+                    ...chartDefaults.plugins,
+                    tooltip: {
+                        ...chartDefaults.plugins.tooltip,
+                        callbacks: {
+                            label: function(context) {
+                                return context.dataset.label + ': ' + context.parsed.y.toFixed(1) + 'M transactions';
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Daily Transactions (Millions)'
+                        }
+                    }
+                }
+            }
+        });
+
+        // Active Addresses Comparison Chart
+        const addressLabels = addressData.solana.map(d => new Date(d.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }));
+        new Chart(document.getElementById('active-addresses-comparison'), {
+            type: 'bar',
+            data: {
+                labels: addressLabels,
+                datasets: [
+                    {
+                        label: 'Solana',
+                        data: addressData.solana.map(d => d.value / 1000),
+                        backgroundColor: solanaColorLight,
+                        borderColor: solanaColor,
+                        borderWidth: 2
+                    },
+                    {
+                        label: 'Ethereum',
+                        data: addressData.ethereum.map(d => d.value / 1000),
+                        backgroundColor: ethereumColorLight,
+                        borderColor: ethereumColor,
+                        borderWidth: 2
+                    }
+                ]
+            },
+            options: {
+                ...chartDefaults,
+                plugins: {
+                    ...chartDefaults.plugins,
+                    tooltip: {
+                        ...chartDefaults.plugins.tooltip,
+                        callbacks: {
+                            label: function(context) {
+                                return context.dataset.label + ': ' + context.parsed.y.toFixed(0) + 'K active users';
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Daily Active Users (Thousands)'
+                        }
+                    }
+                }
+            }
+        });
+
+        // DEX Volume Comparison Chart
+        const dexLabels = dexData.solana.map(d => new Date(d.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }));
+        new Chart(document.getElementById('dex-volume-comparison'), {
+            type: 'line',
+            data: {
+                labels: dexLabels,
+                datasets: [
+                    {
+                        label: 'Solana DEX Volume',
+                        data: dexData.solana.map(d => d.value / 1000000000),
+                        borderColor: solanaColor,
+                        backgroundColor: solanaColorLight,
+                        fill: true,
+                        tension: 0.4,
+                        pointRadius: 2,
+                        pointHoverRadius: 8
+                    },
+                    {
+                        label: 'Ethereum DEX Volume',
+                        data: dexData.ethereum.map(d => d.value / 1000000000),
+                        borderColor: ethereumColor,
+                        backgroundColor: ethereumColorLight,
+                        fill: true,
+                        tension: 0.4,
+                        pointRadius: 2,
+                        pointHoverRadius: 8
+                    }
+                ]
+            },
+            options: {
+                ...chartDefaults,
+                plugins: {
+                    ...chartDefaults.plugins,
+                    tooltip: {
+                        ...chartDefaults.plugins.tooltip,
+                        callbacks: {
+                            label: function(context) {
+                                return context.dataset.label + ': $' + context.parsed.y.toFixed(2) + 'B';
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Daily Volume (Billions USD)'
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    // Initialize all charts
     initializeREVCharts();
-    
-    // Initialize App Revenue charts with real data
     initializeAppRevenueCharts();
-    
-    // Initialize DEX Volume charts with real data
-    initializeDEXVolumeCharts();
-    
-    // Initialize Transaction charts with real data
-    initializeTransactionCharts();
-    
-    // Initialize Active Addresses charts with real data
-    initializeActiveAddressesCharts();
+    createComparisonCharts();
     
     console.log('All charts initialized successfully');
 });
