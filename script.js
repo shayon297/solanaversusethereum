@@ -74,6 +74,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (dates.length === 0) return [];
         
         const seenYears = new Set();
+        const seenJan2025 = new Set();
         const firstDate = new Date(dates[0]);
         const lastDate = new Date(dates[dates.length - 1]);
         
@@ -94,8 +95,9 @@ document.addEventListener('DOMContentLoaded', function() {
             } else {
                 // Regular format without year for subsequent dates in same year
                 const formattedDate = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-                // Hardcode ", 2025" for any January entries to ensure 2025 is shown
-                if (month === 0 && year === 2025) {
+                // Hardcode ", 2025" for the FIRST January 2025 entry only
+                if (month === 0 && year === 2025 && !seenJan2025.has('jan2025')) {
+                    seenJan2025.add('jan2025');
                     return formattedDate + ', 2025';
                 }
                 return formattedDate;
