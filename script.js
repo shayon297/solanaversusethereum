@@ -384,18 +384,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     }
                 },
                 scales: {
-                    y: {
-                        beginAtZero: true,
-                        title: {
-                            display: true,
-                            text: 'Revenue ($ Millions)'
-                        },
-                        ticks: {
-                            callback: function(value) {
-                                return '$' + value.toFixed(0) + 'M';
-                            }
-                        }
-                    },
+                    y: yAxisConfig,
                     x: {
                         title: {
                             display: true,
