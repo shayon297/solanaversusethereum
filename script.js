@@ -71,18 +71,19 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Helper function to format labels with year changes
     function formatLabelsWithYear(dates) {
+        const seenYears = new Set();
+        
         return dates.map((dateStr, index) => {
             const date = new Date(dateStr);
-            const prevDate = index > 0 ? new Date(dates[index - 1]) : null;
+            const year = date.getFullYear();
+            const isFirstOccurrenceOfYear = !seenYears.has(year);
             
-            // Check if year changed from previous date
-            const yearChanged = prevDate && date.getFullYear() !== prevDate.getFullYear();
-            
-            if (yearChanged || index === 0) {
-                // Show year for first entry or when year changes
+            if (isFirstOccurrenceOfYear) {
+                seenYears.add(year);
+                // Always show year for first occurrence of any year
                 return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
             } else {
-                // Regular format without year
+                // Regular format without year for subsequent dates in same year
                 return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
             }
         });
