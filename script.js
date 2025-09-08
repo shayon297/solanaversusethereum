@@ -1100,7 +1100,7 @@ document.addEventListener('DOMContentLoaded', function() {
             stepSize: yAxisSteps,
             title: {
                 display: true,
-                text: 'Average Fee Per User ($)'
+                text: 'Average Cost of Transaction ($)'
             }
         };
 
@@ -1111,7 +1111,7 @@ document.addEventListener('DOMContentLoaded', function() {
             data: {
                 labels: solanaLabels,
                 datasets: [{
-                    label: 'Average Fee Per User ($)',
+                    label: 'Average Cost of Transaction ($)',
                     data: data.solana.map(d => d.value),
                     borderColor: solanaColor,
                     backgroundColor: solanaColorLight,
@@ -1129,7 +1129,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         ...chartDefaults.plugins.tooltip,
                         callbacks: {
                             label: function(context) {
-                                return 'AFPU: $' + context.parsed.y.toFixed(3);
+                                return 'Avg Cost: $' + context.parsed.y.toFixed(3);
                             }
                         }
                     }
@@ -1147,7 +1147,7 @@ document.addEventListener('DOMContentLoaded', function() {
             data: {
                 labels: ethereumLabels,
                 datasets: [{
-                    label: 'Average Fee Per User ($)',
+                    label: 'Average Cost of Transaction ($)',
                     data: data.ethereum.map(d => d.value),
                     borderColor: ethereumColor,
                     backgroundColor: ethereumColorLight,
@@ -1165,7 +1165,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         ...chartDefaults.plugins.tooltip,
                         callbacks: {
                             label: function(context) {
-                                return 'AFPU: $' + context.parsed.y.toFixed(2);
+                                return 'Avg Cost: $' + context.parsed.y.toFixed(2);
                             }
                         }
                     }
