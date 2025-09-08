@@ -80,6 +80,7 @@ document.addEventListener('DOMContentLoaded', function() {
         return dates.map((dateStr, index) => {
             const date = new Date(dateStr);
             const year = date.getFullYear();
+            const month = date.getMonth(); // 0 = January
             const isFirstOccurrenceOfYear = !seenYears.has(year);
             const isLastEntry = index === dates.length - 1;
             
@@ -92,7 +93,12 @@ document.addEventListener('DOMContentLoaded', function() {
                 return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
             } else {
                 // Regular format without year for subsequent dates in same year
-                return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+                const formattedDate = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+                // Hardcode ", 2025" for any January entries to ensure 2025 is shown
+                if (month === 0 && year === 2025) {
+                    return formattedDate + ', 2025';
+                }
+                return formattedDate;
             }
         });
     }
@@ -1100,7 +1106,7 @@ document.addEventListener('DOMContentLoaded', function() {
             stepSize: yAxisSteps,
             title: {
                 display: true,
-                text: 'Average Transaction Fee ($)'
+                text: 'Average Transaction Cost ($)'
             }
         };
 
@@ -1111,7 +1117,7 @@ document.addEventListener('DOMContentLoaded', function() {
             data: {
                 labels: solanaLabels,
                 datasets: [{
-                    label: 'Average Transaction Fee ($)',
+                    label: 'Average Transaction Cost ($)',
                     data: data.solana.map(d => d.value),
                     borderColor: solanaColor,
                     backgroundColor: solanaColorLight,
@@ -1129,7 +1135,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         ...chartDefaults.plugins.tooltip,
                         callbacks: {
                             label: function(context) {
-                                return 'Avg Fee: $' + context.parsed.y.toFixed(3);
+                                return 'Avg Cost: $' + context.parsed.y.toFixed(3);
                             }
                         }
                     }
@@ -1147,7 +1153,7 @@ document.addEventListener('DOMContentLoaded', function() {
             data: {
                 labels: ethereumLabels,
                 datasets: [{
-                    label: 'Average Transaction Fee ($)',
+                    label: 'Average Transaction Cost ($)',
                     data: data.ethereum.map(d => d.value),
                     borderColor: ethereumColor,
                     backgroundColor: ethereumColorLight,
@@ -1165,7 +1171,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         ...chartDefaults.plugins.tooltip,
                         callbacks: {
                             label: function(context) {
-                                return 'Avg Fee: $' + context.parsed.y.toFixed(2);
+                                return 'Avg Cost: $' + context.parsed.y.toFixed(2);
                             }
                         }
                     }
