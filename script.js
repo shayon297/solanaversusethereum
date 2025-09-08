@@ -1146,6 +1146,18 @@ document.addEventListener('DOMContentLoaded', function() {
         const maxEthereum = Math.max(...data.ethereum.map(d => d.value / 1000000));
         const maxValue = Math.max(maxSolana, maxEthereum);
         const yAxisMax = Math.ceil(maxValue * 1.1); // Add 10% padding
+        
+        // Use consistent Y-axis values
+        const yAxisSteps = Math.ceil(yAxisMax / 10);
+        const yAxisConfig = {
+            beginAtZero: true,
+            max: yAxisMax,
+            stepSize: yAxisSteps,
+            title: {
+                display: true,
+                text: 'Daily Transactions (Millions)'
+            }
+        };
 
         // Solana Transactions Chart
         const solanaLabels = data.solana.map(d => new Date(d.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }));
@@ -1178,14 +1190,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     }
                 },
                 scales: {
-                    y: {
-                        beginAtZero: true,
-                        max: yAxisMax,
-                        title: {
-                            display: true,
-                            text: 'Daily Transactions (Millions)'
-                        }
-                    }
+                    y: yAxisConfig
                 }
             }
         });
@@ -1221,14 +1226,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     }
                 },
                 scales: {
-                    y: {
-                        beginAtZero: true,
-                        max: yAxisMax,
-                        title: {
-                            display: true,
-                            text: 'Daily Transactions (Millions)'
-                        }
-                    }
+                    y: yAxisConfig
                 }
             }
         });
@@ -1247,6 +1245,18 @@ document.addEventListener('DOMContentLoaded', function() {
         const maxEthereum = Math.max(...data.ethereum.map(d => d.value / 1000));
         const maxValue = Math.max(maxSolana, maxEthereum);
         const yAxisMax = Math.ceil(maxValue * 1.1); // Add 10% padding
+        
+        // Use consistent Y-axis values
+        const yAxisSteps = Math.ceil(yAxisMax / 10);
+        const yAxisConfig = {
+            beginAtZero: true,
+            max: yAxisMax,
+            stepSize: yAxisSteps,
+            title: {
+                display: true,
+                text: 'Daily Active Addresses (Thousands)'
+            }
+        };
 
         // Solana Active Addresses Chart
         const solanaLabels = data.solana.map(d => new Date(d.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }));
@@ -1276,14 +1286,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     }
                 },
                 scales: {
-                    y: {
-                        beginAtZero: true,
-                        max: yAxisMax,
-                        title: {
-                            display: true,
-                            text: 'Daily Active Addresses (Thousands)'
-                        }
-                    }
+                    y: yAxisConfig
                 }
             }
         });
@@ -1316,14 +1319,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     }
                 },
                 scales: {
-                    y: {
-                        beginAtZero: true,
-                        max: yAxisMax,
-                        title: {
-                            display: true,
-                            text: 'Daily Active Addresses (Thousands)'
-                        }
-                    }
+                    y: yAxisConfig
                 }
             }
         });
@@ -1342,6 +1338,18 @@ document.addEventListener('DOMContentLoaded', function() {
         const maxEthereum = Math.max(...data.ethereum.map(d => d.value / 1000000000));
         const maxValue = Math.max(maxSolana, maxEthereum);
         const yAxisMax = Math.ceil(maxValue * 1.1); // Add 10% padding
+        
+        // Use consistent Y-axis values
+        const yAxisSteps = Math.ceil(yAxisMax / 10);
+        const yAxisConfig = {
+            beginAtZero: true,
+            max: yAxisMax,
+            stepSize: yAxisSteps,
+            title: {
+                display: true,
+                text: 'Daily Volume (Billions USD)'
+            }
+        };
 
         // Solana DEX Volume Chart
         const solanaLabels = data.solana.map(d => new Date(d.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }));
@@ -1374,14 +1382,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     }
                 },
                 scales: {
-                    y: {
-                        beginAtZero: true,
-                        max: yAxisMax,
-                        title: {
-                            display: true,
-                            text: 'Daily Volume (Billions USD)'
-                        }
-                    }
+                    y: yAxisConfig
                 }
             }
         });
@@ -1417,14 +1418,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     }
                 },
                 scales: {
-                    y: {
-                        beginAtZero: true,
-                        max: yAxisMax,
-                        title: {
-                            display: true,
-                            text: 'Daily Volume (Billions USD)'
-                        }
-                    }
+                    y: yAxisConfig
                 }
             }
         });
