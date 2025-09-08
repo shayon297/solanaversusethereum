@@ -1036,7 +1036,7 @@ document.addEventListener('DOMContentLoaded', function() {
     async function loadAFPUData() {
         try {
             // Load Solana AFPU data
-            const solanaResponse = await fetch('AFPU/Solana AFPU.csv');
+            const solanaResponse = await fetch('AFPU/Average Transaction Fee Solana.csv');
             const solanaText = await solanaResponse.text();
             const solanaLines = solanaText.trim().split('\n');
             
@@ -1054,7 +1054,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
 
             // Load Ethereum AFPU data
-            const ethereumResponse = await fetch('AFPU/Ethereum AFPU.csv');
+            const ethereumResponse = await fetch('AFPU/Average transaction fee Ethereum.csv');
             const ethereumText = await ethereumResponse.text();
             const ethereumLines = ethereumText.trim().split('\n');
             
@@ -1100,7 +1100,7 @@ document.addEventListener('DOMContentLoaded', function() {
             stepSize: yAxisSteps,
             title: {
                 display: true,
-                text: 'Average Cost of Transaction ($)'
+                text: 'Average Transaction Fee ($)'
             }
         };
 
@@ -1111,7 +1111,7 @@ document.addEventListener('DOMContentLoaded', function() {
             data: {
                 labels: solanaLabels,
                 datasets: [{
-                    label: 'Average Cost of Transaction ($)',
+                    label: 'Average Transaction Fee ($)',
                     data: data.solana.map(d => d.value),
                     borderColor: solanaColor,
                     backgroundColor: solanaColorLight,
@@ -1129,7 +1129,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         ...chartDefaults.plugins.tooltip,
                         callbacks: {
                             label: function(context) {
-                                return 'Avg Cost: $' + context.parsed.y.toFixed(3);
+                                return 'Avg Fee: $' + context.parsed.y.toFixed(3);
                             }
                         }
                     }
@@ -1147,7 +1147,7 @@ document.addEventListener('DOMContentLoaded', function() {
             data: {
                 labels: ethereumLabels,
                 datasets: [{
-                    label: 'Average Cost of Transaction ($)',
+                    label: 'Average Transaction Fee ($)',
                     data: data.ethereum.map(d => d.value),
                     borderColor: ethereumColor,
                     backgroundColor: ethereumColorLight,
@@ -1165,7 +1165,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         ...chartDefaults.plugins.tooltip,
                         callbacks: {
                             label: function(context) {
-                                return 'Avg Cost: $' + context.parsed.y.toFixed(2);
+                                return 'Avg Fee: $' + context.parsed.y.toFixed(2);
                             }
                         }
                     }
