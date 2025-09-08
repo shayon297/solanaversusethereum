@@ -994,6 +994,145 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // Create comparison charts for the new layout
+    // Load AFPU data from CSV files
+    async function loadAFPUData() {
+        try {
+            // Load Solana AFPU data
+            const solanaResponse = await fetch('AFPU/Solana AFPU.csv');
+            const solanaText = await solanaResponse.text();
+            const solanaLines = solanaText.trim().split('\n');
+            
+            const solanaData = [];
+            for (let i = 1; i < solanaLines.length; i++) {
+                const [date, afpu] = solanaLines[i].split(',');
+                const dateObj = new Date(date);
+                // Filter to start from July 2024
+                if (dateObj >= new Date('2024-07-01')) {
+                    solanaData.push({
+                        date: date,
+                        value: parseFloat(afpu)
+                    });
+                }
+            }
+
+            // Load Ethereum AFPU data
+            const ethereumResponse = await fetch('AFPU/Ethereum AFPU.csv');
+            const ethereumText = await ethereumResponse.text();
+            const ethereumLines = ethereumText.trim().split('\n');
+            
+            const ethereumData = [];
+            for (let i = 1; i < ethereumLines.length; i++) {
+                const [date, afpu] = ethereumLines[i].split(',');
+                const dateObj = new Date(date);
+                // Filter to start from July 2024
+                if (dateObj >= new Date('2024-07-01')) {
+                    ethereumData.push({
+                        date: date,
+                        value: parseFloat(afpu)
+                    });
+                }
+            }
+
+            return { solana: solanaData, ethereum: ethereumData };
+        } catch (error) {
+            console.error('Error loading AFPU data:', error);
+            return null;
+        }
+    }
+
+    // Initialize AFPU charts
+    async function initializeAFPUCharts() {
+        const data = await loadAFPUData();
+        if (!data) {
+            console.error('Failed to load AFPU data');
+            return;
+        }
+
+        // Solana AFPU Chart
+        const solanaLabels = data.solana.map(d => new Date(d.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }));
+        new Chart(document.getElementById('solana-afpu'), {
+            type: 'line',
+            data: {
+                labels: solanaLabels,
+                datasets: [{
+                    label: 'Average Fee Per User ($)',
+                    data: data.solana.map(d => d.value),
+                    borderColor: solanaColor,
+                    backgroundColor: solanaColorLight,
+                    fill: true,
+                    tension: 0.4,
+                    pointRadius: 2,
+                    pointHoverRadius: 8
+                }]
+            },
+            options: {
+                ...chartDefaults,
+                plugins: {
+                    ...chartDefaults.plugins,
+                    tooltip: {
+                        ...chartDefaults.plugins.tooltip,
+                        callbacks: {
+                            label: function(context) {
+                                return 'AFPU: $' + context.parsed.y.toFixed(3);
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Average Fee Per User ($)'
+                        }
+                    }
+                }
+            }
+        });
+
+        // Ethereum AFPU Chart
+        const ethereumLabels = data.ethereum.map(d => new Date(d.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }));
+        new Chart(document.getElementById('ethereum-afpu'), {
+            type: 'line',
+            data: {
+                labels: ethereumLabels,
+                datasets: [{
+                    label: 'Average Fee Per User ($)',
+                    data: data.ethereum.map(d => d.value),
+                    borderColor: ethereumColor,
+                    backgroundColor: ethereumColorLight,
+                    fill: true,
+                    tension: 0.4,
+                    pointRadius: 2,
+                    pointHoverRadius: 8
+                }]
+            },
+            options: {
+                ...chartDefaults,
+                plugins: {
+                    ...chartDefaults.plugins,
+                    tooltip: {
+                        ...chartDefaults.plugins.tooltip,
+                        callbacks: {
+                            label: function(context) {
+                                return 'AFPU: $' + context.parsed.y.toFixed(2);
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Average Fee Per User ($)'
+                        }
+                    }
+                }
+            }
+        });
+    }
+
     async function createComparisonCharts() {
         // Wait for all data to load
         const [txData, addressData, dexData] = await Promise.all([
@@ -1167,6 +1306,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Initialize all charts
     initializeREVCharts();
     initializeAppRevenueCharts();
+    initializeAFPUCharts();
     createComparisonCharts();
     
     console.log('All charts initialized successfully');
