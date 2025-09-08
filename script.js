@@ -71,16 +71,24 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Helper function to format labels with year changes
     function formatLabelsWithYear(dates) {
+        if (dates.length === 0) return [];
+        
         const seenYears = new Set();
+        const firstDate = new Date(dates[0]);
+        const lastDate = new Date(dates[dates.length - 1]);
         
         return dates.map((dateStr, index) => {
             const date = new Date(dateStr);
             const year = date.getFullYear();
             const isFirstOccurrenceOfYear = !seenYears.has(year);
+            const isLastEntry = index === dates.length - 1;
             
             if (isFirstOccurrenceOfYear) {
                 seenYears.add(year);
                 // Always show year for first occurrence of any year
+                return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+            } else if (isLastEntry && year !== firstDate.getFullYear()) {
+                // Also show year on last entry if it's a different year than first
                 return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
             } else {
                 // Regular format without year for subsequent dates in same year
@@ -116,10 +124,14 @@ document.addEventListener('DOMContentLoaded', function() {
             const solanaData = [];
             for (let i = 1; i < solanaLines.length; i++) {
                 const [date, rev] = solanaLines[i].split(',');
-                solanaData.push({
-                    date: date,
-                    value: parseFloat(rev)
-                });
+                const dateObj = new Date(date);
+                // Filter to start from June 2024
+                if (dateObj >= new Date('2024-06-01')) {
+                    solanaData.push({
+                        date: date,
+                        value: parseFloat(rev)
+                    });
+                }
             }
             
             // Load Ethereum REV data
@@ -130,10 +142,14 @@ document.addEventListener('DOMContentLoaded', function() {
             const ethereumData = [];
             for (let i = 1; i < ethereumLines.length; i++) {
                 const [date, fees] = ethereumLines[i].split(',');
-                ethereumData.push({
-                    date: date,
-                    value: parseFloat(fees)
-                });
+                const dateObj = new Date(date);
+                // Filter to start from June 2024
+                if (dateObj >= new Date('2024-06-01')) {
+                    ethereumData.push({
+                        date: date,
+                        value: parseFloat(fees)
+                    });
+                }
             }
             
             return { solana: solanaData, ethereum: ethereumData };
