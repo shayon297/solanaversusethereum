@@ -69,6 +69,25 @@ document.addEventListener('DOMContentLoaded', function() {
     const solanaColorLight = 'rgba(153, 69, 255, 0.3)';
     const ethereumColorLight = 'rgba(98, 126, 234, 0.3)';
 
+    // Helper function to format labels with year changes
+    function formatLabelsWithYear(dates) {
+        return dates.map((dateStr, index) => {
+            const date = new Date(dateStr);
+            const prevDate = index > 0 ? new Date(dates[index - 1]) : null;
+            
+            // Check if year changed from previous date
+            const yearChanged = prevDate && date.getFullYear() !== prevDate.getFullYear();
+            
+            if (yearChanged || index === 0) {
+                // Show year for first entry or when year changes
+                return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+            } else {
+                // Regular format without year
+                return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+            }
+        });
+    }
+
     // Generate sample dates for the last 18 months
     function generateDateLabels(months) {
         const labels = [];
@@ -136,11 +155,11 @@ document.addEventListener('DOMContentLoaded', function() {
             return;
         }
 
-        // Extract dates and values
-        const solanaLabels = revData.solana.map(d => new Date(d.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }));
+        // Extract dates and values with year-aware formatting
+        const solanaLabels = formatLabelsWithYear(revData.solana.map(d => d.date));
         const solanaValues = revData.solana.map(d => d.value / 1000000); // Convert to millions
         
-        const ethereumLabels = revData.ethereum.map(d => new Date(d.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }));
+        const ethereumLabels = formatLabelsWithYear(revData.ethereum.map(d => d.date));
         const ethereumValues = revData.ethereum.map(d => d.value / 1000000); // Convert to millions
 
         // Find the maximum value across both datasets for consistent Y-axis
@@ -298,10 +317,10 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
         // Extract dates and values, convert to millions
-        const solanaLabels = appRevData.solana.map(d => new Date(d.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }));
+        const solanaLabels = formatLabelsWithYear(appRevData.solana.map(d => d.date));
         const solanaValues = appRevData.solana.map(d => d.value / 1000000); // Convert to millions
         
-        const ethereumLabels = appRevData.ethereum.map(d => new Date(d.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }));
+        const ethereumLabels = formatLabelsWithYear(appRevData.ethereum.map(d => d.date));
         const ethereumValues = appRevData.ethereum.map(d => d.value / 1000000); // Convert to millions
 
         // Find the maximum value across both datasets for consistent Y-axis
@@ -1069,7 +1088,7 @@ document.addEventListener('DOMContentLoaded', function() {
         };
 
         // Solana AFPU Chart
-        const solanaLabels = data.solana.map(d => new Date(d.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }));
+        const solanaLabels = formatLabelsWithYear(data.solana.map(d => d.date));
         new Chart(document.getElementById('solana-afpu'), {
             type: 'line',
             data: {
@@ -1105,7 +1124,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
 
         // Ethereum AFPU Chart
-        const ethereumLabels = data.ethereum.map(d => new Date(d.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }));
+        const ethereumLabels = formatLabelsWithYear(data.ethereum.map(d => d.date));
         new Chart(document.getElementById('ethereum-afpu'), {
             type: 'line',
             data: {
@@ -1168,7 +1187,7 @@ document.addEventListener('DOMContentLoaded', function() {
         };
 
         // Solana Transactions Chart
-        const solanaLabels = data.solana.map(d => new Date(d.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }));
+        const solanaLabels = formatLabelsWithYear(data.solana.map(d => d.date));
         new Chart(document.getElementById('solana-transactions'), {
             type: 'line',
             data: {
@@ -1204,7 +1223,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
 
         // Ethereum Transactions Chart
-        const ethereumLabels = data.ethereum.map(d => new Date(d.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }));
+        const ethereumLabels = formatLabelsWithYear(data.ethereum.map(d => d.date));
         new Chart(document.getElementById('ethereum-transactions'), {
             type: 'line',
             data: {
@@ -1267,7 +1286,7 @@ document.addEventListener('DOMContentLoaded', function() {
         };
 
         // Solana Active Addresses Chart
-        const solanaLabels = data.solana.map(d => new Date(d.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }));
+        const solanaLabels = formatLabelsWithYear(data.solana.map(d => d.date));
         new Chart(document.getElementById('solana-addresses'), {
             type: 'bar',
             data: {
@@ -1300,7 +1319,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
 
         // Ethereum Active Addresses Chart
-        const ethereumLabels = data.ethereum.map(d => new Date(d.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }));
+        const ethereumLabels = formatLabelsWithYear(data.ethereum.map(d => d.date));
         new Chart(document.getElementById('ethereum-addresses'), {
             type: 'bar',
             data: {
@@ -1360,7 +1379,7 @@ document.addEventListener('DOMContentLoaded', function() {
         };
 
         // Solana DEX Volume Chart
-        const solanaLabels = data.solana.map(d => new Date(d.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }));
+        const solanaLabels = formatLabelsWithYear(data.solana.map(d => d.date));
         new Chart(document.getElementById('solana-dex'), {
             type: 'line',
             data: {
@@ -1396,7 +1415,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
 
         // Ethereum DEX Volume Chart
-        const ethereumLabels = data.ethereum.map(d => new Date(d.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }));
+        const ethereumLabels = formatLabelsWithYear(data.ethereum.map(d => d.date));
         new Chart(document.getElementById('ethereum-dex'), {
             type: 'line',
             data: {
