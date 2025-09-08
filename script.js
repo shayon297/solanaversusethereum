@@ -143,6 +143,29 @@ document.addEventListener('DOMContentLoaded', function() {
         const ethereumLabels = revData.ethereum.map(d => new Date(d.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }));
         const ethereumValues = revData.ethereum.map(d => d.value / 1000000); // Convert to millions
 
+        // Find the maximum value across both datasets for consistent Y-axis
+        const maxSolana = Math.max(...solanaValues);
+        const maxEthereum = Math.max(...ethereumValues);
+        const maxValue = Math.max(maxSolana, maxEthereum);
+        const yAxisMax = Math.ceil(maxValue * 1.1); // Add 10% padding
+        
+        // Use consistent Y-axis values
+        const yAxisSteps = Math.ceil(yAxisMax / 10);
+        const yAxisConfig = {
+            beginAtZero: true,
+            max: yAxisMax,
+            stepSize: yAxisSteps,
+            title: {
+                display: true,
+                text: 'Revenue ($ Millions)'
+            },
+            ticks: {
+                callback: function(value) {
+                    return '$' + value.toFixed(1) + 'M';
+                }
+            }
+        };
+
         // Create Solana REV Chart
         new Chart(document.getElementById('solana-rev'), {
             type: 'line',
@@ -169,18 +192,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     }
                 },
                 scales: {
-                    y: {
-                        beginAtZero: true,
-                        title: {
-                            display: true,
-                            text: 'Revenue ($ Millions)'
-                        },
-                        ticks: {
-                            callback: function(value) {
-                                return '$' + value.toFixed(1) + 'M';
-                            }
-                        }
-                    },
+                    y: yAxisConfig,
                     x: {
                         title: {
                             display: true,
@@ -217,18 +229,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     }
                 },
                 scales: {
-                    y: {
-                        beginAtZero: true,
-                        title: {
-                            display: true,
-                            text: 'Revenue ($ Millions)'
-                        },
-                        ticks: {
-                            callback: function(value) {
-                                return '$' + value.toFixed(0) + 'M';
-                            }
-                        }
-                    },
+                    y: yAxisConfig,
                     x: {
                         title: {
                             display: true,
@@ -303,6 +304,29 @@ document.addEventListener('DOMContentLoaded', function() {
         const ethereumLabels = appRevData.ethereum.map(d => new Date(d.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }));
         const ethereumValues = appRevData.ethereum.map(d => d.value / 1000000); // Convert to millions
 
+        // Find the maximum value across both datasets for consistent Y-axis
+        const maxSolana = Math.max(...solanaValues);
+        const maxEthereum = Math.max(...ethereumValues);
+        const maxValue = Math.max(maxSolana, maxEthereum);
+        const yAxisMax = Math.ceil(maxValue * 1.1); // Add 10% padding
+        
+        // Use consistent Y-axis values
+        const yAxisSteps = Math.ceil(yAxisMax / 10);
+        const yAxisConfig = {
+            beginAtZero: true,
+            max: yAxisMax,
+            stepSize: yAxisSteps,
+            title: {
+                display: true,
+                text: 'Revenue ($ Millions)'
+            },
+            ticks: {
+                callback: function(value) {
+                    return '$' + value.toFixed(1) + 'M';
+                }
+            }
+        };
+
         // Create Solana App Revenue Chart
         new Chart(document.getElementById('solana-app-rev'), {
             type: 'bar',
@@ -326,18 +350,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     }
                 },
                 scales: {
-                    y: {
-                        beginAtZero: true,
-                        title: {
-                            display: true,
-                            text: 'Revenue ($ Millions)'
-                        },
-                        ticks: {
-                            callback: function(value) {
-                                return '$' + value.toFixed(1) + 'M';
-                            }
-                        }
-                    },
+                    y: yAxisConfig,
                     x: {
                         title: {
                             display: true,
@@ -1048,6 +1061,24 @@ document.addEventListener('DOMContentLoaded', function() {
             return;
         }
 
+        // Find the maximum value across both datasets for consistent Y-axis
+        const maxSolana = Math.max(...data.solana.map(d => d.value));
+        const maxEthereum = Math.max(...data.ethereum.map(d => d.value));
+        const maxValue = Math.max(maxSolana, maxEthereum);
+        const yAxisMax = Math.ceil(maxValue * 1.1); // Add 10% padding
+        
+        // Use consistent Y-axis values
+        const yAxisSteps = Math.ceil(yAxisMax / 10);
+        const yAxisConfig = {
+            beginAtZero: true,
+            max: yAxisMax,
+            stepSize: yAxisSteps,
+            title: {
+                display: true,
+                text: 'Average Fee Per User ($)'
+            }
+        };
+
         // Solana AFPU Chart
         const solanaLabels = data.solana.map(d => new Date(d.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }));
         new Chart(document.getElementById('solana-afpu'), {
@@ -1079,13 +1110,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     }
                 },
                 scales: {
-                    y: {
-                        beginAtZero: true,
-                        title: {
-                            display: true,
-                            text: 'Average Fee Per User ($)'
-                        }
-                    }
+                    y: yAxisConfig
                 }
             }
         });
@@ -1121,13 +1146,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     }
                 },
                 scales: {
-                    y: {
-                        beginAtZero: true,
-                        title: {
-                            display: true,
-                            text: 'Average Fee Per User ($)'
-                        }
-                    }
+                    y: yAxisConfig
                 }
             }
         });
