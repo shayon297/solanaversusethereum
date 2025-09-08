@@ -1133,6 +1133,303 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
+    // Initialize individual Transaction charts
+    async function initializeTransactionCharts() {
+        const data = await loadTransactionData();
+        if (!data) {
+            console.error('Failed to load transaction data');
+            return;
+        }
+
+        // Find the maximum value across both datasets for consistent Y-axis
+        const maxSolana = Math.max(...data.solana.map(d => d.value / 1000000));
+        const maxEthereum = Math.max(...data.ethereum.map(d => d.value / 1000000));
+        const maxValue = Math.max(maxSolana, maxEthereum);
+        const yAxisMax = Math.ceil(maxValue * 1.1); // Add 10% padding
+
+        // Solana Transactions Chart
+        const solanaLabels = data.solana.map(d => new Date(d.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }));
+        new Chart(document.getElementById('solana-transactions'), {
+            type: 'line',
+            data: {
+                labels: solanaLabels,
+                datasets: [{
+                    label: 'Daily Transactions (Millions)',
+                    data: data.solana.map(d => d.value / 1000000),
+                    borderColor: solanaColor,
+                    backgroundColor: solanaColorLight,
+                    fill: true,
+                    tension: 0.4,
+                    pointRadius: 2,
+                    pointHoverRadius: 8
+                }]
+            },
+            options: {
+                ...chartDefaults,
+                plugins: {
+                    ...chartDefaults.plugins,
+                    tooltip: {
+                        ...chartDefaults.plugins.tooltip,
+                        callbacks: {
+                            label: function(context) {
+                                return 'Transactions: ' + context.parsed.y.toFixed(1) + 'M';
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: yAxisMax,
+                        title: {
+                            display: true,
+                            text: 'Daily Transactions (Millions)'
+                        }
+                    }
+                }
+            }
+        });
+
+        // Ethereum Transactions Chart
+        const ethereumLabels = data.ethereum.map(d => new Date(d.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }));
+        new Chart(document.getElementById('ethereum-transactions'), {
+            type: 'line',
+            data: {
+                labels: ethereumLabels,
+                datasets: [{
+                    label: 'Daily Transactions (Millions)',
+                    data: data.ethereum.map(d => d.value / 1000000),
+                    borderColor: ethereumColor,
+                    backgroundColor: ethereumColorLight,
+                    fill: true,
+                    tension: 0.4,
+                    pointRadius: 2,
+                    pointHoverRadius: 8
+                }]
+            },
+            options: {
+                ...chartDefaults,
+                plugins: {
+                    ...chartDefaults.plugins,
+                    tooltip: {
+                        ...chartDefaults.plugins.tooltip,
+                        callbacks: {
+                            label: function(context) {
+                                return 'Transactions: ' + context.parsed.y.toFixed(1) + 'M';
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: yAxisMax,
+                        title: {
+                            display: true,
+                            text: 'Daily Transactions (Millions)'
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    // Initialize individual Active Addresses charts
+    async function initializeActiveAddressesCharts() {
+        const data = await loadActiveAddressesData();
+        if (!data) {
+            console.error('Failed to load active addresses data');
+            return;
+        }
+
+        // Find the maximum value across both datasets for consistent Y-axis
+        const maxSolana = Math.max(...data.solana.map(d => d.value / 1000));
+        const maxEthereum = Math.max(...data.ethereum.map(d => d.value / 1000));
+        const maxValue = Math.max(maxSolana, maxEthereum);
+        const yAxisMax = Math.ceil(maxValue * 1.1); // Add 10% padding
+
+        // Solana Active Addresses Chart
+        const solanaLabels = data.solana.map(d => new Date(d.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }));
+        new Chart(document.getElementById('solana-addresses'), {
+            type: 'bar',
+            data: {
+                labels: solanaLabels,
+                datasets: [{
+                    label: 'Daily Active Addresses (Thousands)',
+                    data: data.solana.map(d => d.value / 1000),
+                    backgroundColor: solanaColorLight,
+                    borderColor: solanaColor,
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                ...chartDefaults,
+                plugins: {
+                    ...chartDefaults.plugins,
+                    tooltip: {
+                        ...chartDefaults.plugins.tooltip,
+                        callbacks: {
+                            label: function(context) {
+                                return 'Active Addresses: ' + context.parsed.y.toFixed(0) + 'K';
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: yAxisMax,
+                        title: {
+                            display: true,
+                            text: 'Daily Active Addresses (Thousands)'
+                        }
+                    }
+                }
+            }
+        });
+
+        // Ethereum Active Addresses Chart
+        const ethereumLabels = data.ethereum.map(d => new Date(d.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }));
+        new Chart(document.getElementById('ethereum-addresses'), {
+            type: 'bar',
+            data: {
+                labels: ethereumLabels,
+                datasets: [{
+                    label: 'Daily Active Addresses (Thousands)',
+                    data: data.ethereum.map(d => d.value / 1000),
+                    backgroundColor: ethereumColorLight,
+                    borderColor: ethereumColor,
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                ...chartDefaults,
+                plugins: {
+                    ...chartDefaults.plugins,
+                    tooltip: {
+                        ...chartDefaults.plugins.tooltip,
+                        callbacks: {
+                            label: function(context) {
+                                return 'Active Addresses: ' + context.parsed.y.toFixed(0) + 'K';
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: yAxisMax,
+                        title: {
+                            display: true,
+                            text: 'Daily Active Addresses (Thousands)'
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    // Initialize individual DEX Volume charts
+    async function initializeDEXVolumeCharts() {
+        const data = await loadDEXVolumeData();
+        if (!data) {
+            console.error('Failed to load DEX volume data');
+            return;
+        }
+
+        // Find the maximum value across both datasets for consistent Y-axis
+        const maxSolana = Math.max(...data.solana.map(d => d.value / 1000000000));
+        const maxEthereum = Math.max(...data.ethereum.map(d => d.value / 1000000000));
+        const maxValue = Math.max(maxSolana, maxEthereum);
+        const yAxisMax = Math.ceil(maxValue * 1.1); // Add 10% padding
+
+        // Solana DEX Volume Chart
+        const solanaLabels = data.solana.map(d => new Date(d.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }));
+        new Chart(document.getElementById('solana-dex'), {
+            type: 'line',
+            data: {
+                labels: solanaLabels,
+                datasets: [{
+                    label: 'Daily DEX Volume (Billions USD)',
+                    data: data.solana.map(d => d.value / 1000000000),
+                    borderColor: solanaColor,
+                    backgroundColor: solanaColorLight,
+                    fill: true,
+                    tension: 0.4,
+                    pointRadius: 2,
+                    pointHoverRadius: 8
+                }]
+            },
+            options: {
+                ...chartDefaults,
+                plugins: {
+                    ...chartDefaults.plugins,
+                    tooltip: {
+                        ...chartDefaults.plugins.tooltip,
+                        callbacks: {
+                            label: function(context) {
+                                return 'DEX Volume: $' + context.parsed.y.toFixed(2) + 'B';
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: yAxisMax,
+                        title: {
+                            display: true,
+                            text: 'Daily Volume (Billions USD)'
+                        }
+                    }
+                }
+            }
+        });
+
+        // Ethereum DEX Volume Chart
+        const ethereumLabels = data.ethereum.map(d => new Date(d.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }));
+        new Chart(document.getElementById('ethereum-dex'), {
+            type: 'line',
+            data: {
+                labels: ethereumLabels,
+                datasets: [{
+                    label: 'Daily DEX Volume (Billions USD)',
+                    data: data.ethereum.map(d => d.value / 1000000000),
+                    borderColor: ethereumColor,
+                    backgroundColor: ethereumColorLight,
+                    fill: true,
+                    tension: 0.4,
+                    pointRadius: 2,
+                    pointHoverRadius: 8
+                }]
+            },
+            options: {
+                ...chartDefaults,
+                plugins: {
+                    ...chartDefaults.plugins,
+                    tooltip: {
+                        ...chartDefaults.plugins.tooltip,
+                        callbacks: {
+                            label: function(context) {
+                                return 'DEX Volume: $' + context.parsed.y.toFixed(2) + 'B';
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: yAxisMax,
+                        title: {
+                            display: true,
+                            text: 'Daily Volume (Billions USD)'
+                        }
+                    }
+                }
+            }
+        });
+    }
+
     async function createComparisonCharts() {
         // Wait for all data to load
         const [txData, addressData, dexData] = await Promise.all([
@@ -1307,7 +1604,9 @@ document.addEventListener('DOMContentLoaded', function() {
     initializeREVCharts();
     initializeAppRevenueCharts();
     initializeAFPUCharts();
-    createComparisonCharts();
+    initializeTransactionCharts();
+    initializeActiveAddressesCharts();
+    initializeDEXVolumeCharts();
     
     console.log('All charts initialized successfully');
 });
