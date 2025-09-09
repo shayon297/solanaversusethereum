@@ -42,6 +42,13 @@ header {
     text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
 }
 
+.header-subtitle {
+    margin-top: 1rem;
+    font-size: 1.1rem;
+    color: rgba(255, 255, 255, 0.9);
+    font-weight: 400;
+}
+
 /* Responsive logo adjustments */
 @media (max-width: 768px) {
     .logo-container {
@@ -54,6 +61,10 @@ header {
     
     .vs-text {
         font-size: 2rem;
+    }
+    
+    .header-subtitle {
+        font-size: 1rem;
     }
 }
 
@@ -126,9 +137,10 @@ main {
 .chart-wrapper-large {
     background: #f8f9fa;
     border-radius: 6px;
-    padding: 2rem;
+    padding: 1.5rem;
     border: 1px solid #e9ecef;
-    min-height: 500px;
+    height: 420px;
+    width: 100%;
 }
 
 .chart-wrapper.single {

@@ -248,6 +248,8 @@ document.addEventListener('DOMContentLoaded', function() {
             },
             options: {
                 ...chartDefaults,
+                responsive: true,
+                maintainAspectRatio: false,
                 plugins: {
                     ...chartDefaults.plugins,
                     legend: {
@@ -378,6 +380,8 @@ document.addEventListener('DOMContentLoaded', function() {
             },
             options: {
                 ...chartDefaults,
+                responsive: true,
+                maintainAspectRatio: false,
                 plugins: {
                     ...chartDefaults.plugins,
                     legend: {
@@ -1394,6 +1398,8 @@ document.addEventListener('DOMContentLoaded', function() {
             },
             options: {
                 ...chartDefaults,
+                responsive: true,
+                maintainAspectRatio: false,
                 plugins: {
                     ...chartDefaults.plugins,
                     legend: {
