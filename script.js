@@ -194,9 +194,9 @@ document.addEventListener('DOMContentLoaded', function() {
         const ethereumLabels = formatLabelsWithYear(revData.ethereum.map(d => d.date));
         const ethereumValues = revData.ethereum.map(d => d.value / 1000000); // Convert to millions
 
-        // Use logarithmic Y-axis for better comparison
+        // Use linear Y-axis for standard comparison
         const yAxisConfig = {
-            type: 'logarithmic',
+            beginAtZero: true,
             title: {
                 display: true,
                 text: 'Revenue ($ Millions)'
@@ -1051,92 +1051,74 @@ document.addEventListener('DOMContentLoaded', function() {
             return;
         }
 
-        // Find the maximum value across both datasets for consistent Y-axis
-        const maxSolana = Math.max(...data.solana.map(d => d.value));
-        const maxEthereum = Math.max(...data.ethereum.map(d => d.value));
-        const maxValue = Math.max(maxSolana, maxEthereum);
-        const yAxisMax = Math.ceil(maxValue * 1.1); // Add 10% padding
-        
-        // Use consistent Y-axis values
-        const yAxisSteps = Math.ceil(yAxisMax / 10);
+        // Use linear Y-axis with reduced ticks
         const yAxisConfig = {
             beginAtZero: true,
-            max: yAxisMax,
-            stepSize: yAxisSteps,
             title: {
                 display: true,
                 text: 'Average Transaction Cost ($)'
+            },
+            ticks: {
+                maxTicksLimit: 5, // Reduce tick density by half
+                callback: function(value) {
+                    return '$' + value.toFixed(3);
+                }
             }
         };
 
-        // Solana AFPU Chart
+        // Create Combined AFPU Chart
         const solanaLabels = formatLabelsWithYear(data.solana.map(d => d.date));
-        new Chart(document.getElementById('solana-afpu'), {
+        new Chart(document.getElementById('combined-afpu'), {
             type: 'line',
             data: {
-                labels: solanaLabels,
+                labels: solanaLabels, // Use Solana labels as primary
                 datasets: [{
-                    label: 'Average Transaction Cost ($)',
+                    label: 'Solana Avg Transaction Cost ($)',
                     data: data.solana.map(d => d.value),
                     borderColor: solanaColor,
                     backgroundColor: solanaColorLight,
-                    fill: true,
+                    fill: false,
                     tension: 0.4,
                     pointRadius: 2,
-                    pointHoverRadius: 8
-                }]
-            },
-            options: {
-                ...chartDefaults,
-                plugins: {
-                    ...chartDefaults.plugins,
-                    tooltip: {
-                        ...chartDefaults.plugins.tooltip,
-                        callbacks: {
-                            label: function(context) {
-                                return 'Avg Cost: $' + context.parsed.y.toFixed(3);
-                            }
-                        }
-                    }
-                },
-                scales: {
-                    y: yAxisConfig
-                }
-            }
-        });
-
-        // Ethereum AFPU Chart
-        const ethereumLabels = formatLabelsWithYear(data.ethereum.map(d => d.date));
-        new Chart(document.getElementById('ethereum-afpu'), {
-            type: 'line',
-            data: {
-                labels: ethereumLabels,
-                datasets: [{
-                    label: 'Average Transaction Cost ($)',
+                    pointHoverRadius: 6
+                }, {
+                    label: 'Ethereum Avg Transaction Cost ($)',
                     data: data.ethereum.map(d => d.value),
                     borderColor: ethereumColor,
                     backgroundColor: ethereumColorLight,
-                    fill: true,
+                    fill: false,
                     tension: 0.4,
                     pointRadius: 2,
-                    pointHoverRadius: 8
+                    pointHoverRadius: 6
                 }]
             },
             options: {
                 ...chartDefaults,
+                responsive: true,
+                maintainAspectRatio: false,
                 plugins: {
                     ...chartDefaults.plugins,
+                    legend: {
+                        display: true,
+                        position: 'top'
+                    },
                     tooltip: {
                         ...chartDefaults.plugins.tooltip,
                         callbacks: {
                             label: function(context) {
-                                return 'Avg Cost: $' + context.parsed.y.toFixed(2);
+                                return context.dataset.label + ': $' + context.parsed.y.toFixed(3);
                             }
                         }
                     }
                 },
                 scales: {
-                    y: yAxisConfig
+                    y: yAxisConfig,
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Date'
+                        }
+                    }
                 }
             }
         });
