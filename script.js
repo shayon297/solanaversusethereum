@@ -1132,92 +1132,74 @@ document.addEventListener('DOMContentLoaded', function() {
             return;
         }
 
-        // Find the maximum value across both datasets for consistent Y-axis
-        const maxSolana = Math.max(...data.solana.map(d => d.value / 1000000));
-        const maxEthereum = Math.max(...data.ethereum.map(d => d.value / 1000000));
-        const maxValue = Math.max(maxSolana, maxEthereum);
-        const yAxisMax = Math.ceil(maxValue * 1.1); // Add 10% padding
-        
-        // Use consistent Y-axis values
-        const yAxisSteps = Math.ceil(yAxisMax / 10);
+        // Use linear Y-axis with reduced ticks
         const yAxisConfig = {
             beginAtZero: true,
-            max: yAxisMax,
-            stepSize: yAxisSteps,
             title: {
                 display: true,
                 text: 'Daily Transactions (Millions)'
+            },
+            ticks: {
+                maxTicksLimit: 5, // Reduce tick density by half
+                callback: function(value) {
+                    return value.toFixed(1) + 'M';
+                }
             }
         };
 
-        // Solana Transactions Chart
+        // Create Combined Transactions Chart
         const solanaLabels = formatLabelsWithYear(data.solana.map(d => d.date));
-        new Chart(document.getElementById('solana-transactions'), {
+        new Chart(document.getElementById('combined-transactions'), {
             type: 'line',
             data: {
-                labels: solanaLabels,
+                labels: solanaLabels, // Use Solana labels as primary
                 datasets: [{
-                    label: 'Daily Transactions (Millions)',
+                    label: 'Solana Transactions (M)',
                     data: data.solana.map(d => d.value / 1000000),
                     borderColor: solanaColor,
                     backgroundColor: solanaColorLight,
-                    fill: true,
+                    fill: false,
                     tension: 0.4,
                     pointRadius: 2,
-                    pointHoverRadius: 8
-                }]
-            },
-            options: {
-                ...chartDefaults,
-                plugins: {
-                    ...chartDefaults.plugins,
-                    tooltip: {
-                        ...chartDefaults.plugins.tooltip,
-                        callbacks: {
-                            label: function(context) {
-                                return 'Transactions: ' + context.parsed.y.toFixed(1) + 'M';
-                            }
-                        }
-                    }
-                },
-                scales: {
-                    y: yAxisConfig
-                }
-            }
-        });
-
-        // Ethereum Transactions Chart
-        const ethereumLabels = formatLabelsWithYear(data.ethereum.map(d => d.date));
-        new Chart(document.getElementById('ethereum-transactions'), {
-            type: 'line',
-            data: {
-                labels: ethereumLabels,
-                datasets: [{
-                    label: 'Daily Transactions (Millions)',
+                    pointHoverRadius: 6
+                }, {
+                    label: 'Ethereum Transactions (M)',
                     data: data.ethereum.map(d => d.value / 1000000),
                     borderColor: ethereumColor,
                     backgroundColor: ethereumColorLight,
-                    fill: true,
+                    fill: false,
                     tension: 0.4,
                     pointRadius: 2,
-                    pointHoverRadius: 8
+                    pointHoverRadius: 6
                 }]
             },
             options: {
                 ...chartDefaults,
+                responsive: true,
+                maintainAspectRatio: false,
                 plugins: {
                     ...chartDefaults.plugins,
+                    legend: {
+                        display: true,
+                        position: 'top'
+                    },
                     tooltip: {
                         ...chartDefaults.plugins.tooltip,
                         callbacks: {
                             label: function(context) {
-                                return 'Transactions: ' + context.parsed.y.toFixed(1) + 'M';
+                                return context.dataset.label + ': ' + context.parsed.y.toFixed(1) + 'M';
                             }
                         }
                     }
                 },
                 scales: {
-                    y: yAxisConfig
+                    y: yAxisConfig,
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Date'
+                        }
+                    }
                 }
             }
         });
@@ -1231,86 +1213,74 @@ document.addEventListener('DOMContentLoaded', function() {
             return;
         }
 
-        // Find the maximum value across both datasets for consistent Y-axis
-        const maxSolana = Math.max(...data.solana.map(d => d.value / 1000));
-        const maxEthereum = Math.max(...data.ethereum.map(d => d.value / 1000));
-        const maxValue = Math.max(maxSolana, maxEthereum);
-        const yAxisMax = Math.ceil(maxValue * 1.1); // Add 10% padding
-        
-        // Use consistent Y-axis values
-        const yAxisSteps = Math.ceil(yAxisMax / 10);
+        // Use linear Y-axis with reduced ticks
         const yAxisConfig = {
             beginAtZero: true,
-            max: yAxisMax,
-            stepSize: yAxisSteps,
             title: {
                 display: true,
                 text: 'Daily Active Addresses (Thousands)'
+            },
+            ticks: {
+                maxTicksLimit: 5, // Reduce tick density by half
+                callback: function(value) {
+                    return value.toFixed(0) + 'K';
+                }
             }
         };
 
-        // Solana Active Addresses Chart
+        // Create Combined Active Addresses Chart
         const solanaLabels = formatLabelsWithYear(data.solana.map(d => d.date));
-        new Chart(document.getElementById('solana-addresses'), {
-            type: 'bar',
+        new Chart(document.getElementById('combined-addresses'), {
+            type: 'line',
             data: {
-                labels: solanaLabels,
+                labels: solanaLabels, // Use Solana labels as primary
                 datasets: [{
-                    label: 'Daily Active Addresses (Thousands)',
+                    label: 'Solana Active Addresses (K)',
                     data: data.solana.map(d => d.value / 1000),
-                    backgroundColor: solanaColorLight,
                     borderColor: solanaColor,
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                ...chartDefaults,
-                plugins: {
-                    ...chartDefaults.plugins,
-                    tooltip: {
-                        ...chartDefaults.plugins.tooltip,
-                        callbacks: {
-                            label: function(context) {
-                                return 'Active Addresses: ' + context.parsed.y.toFixed(0) + 'K';
-                            }
-                        }
-                    }
-                },
-                scales: {
-                    y: yAxisConfig
-                }
-            }
-        });
-
-        // Ethereum Active Addresses Chart
-        const ethereumLabels = formatLabelsWithYear(data.ethereum.map(d => d.date));
-        new Chart(document.getElementById('ethereum-addresses'), {
-            type: 'bar',
-            data: {
-                labels: ethereumLabels,
-                datasets: [{
-                    label: 'Daily Active Addresses (Thousands)',
+                    backgroundColor: solanaColorLight,
+                    fill: false,
+                    tension: 0.4,
+                    pointRadius: 2,
+                    pointHoverRadius: 6
+                }, {
+                    label: 'Ethereum Active Addresses (K)',
                     data: data.ethereum.map(d => d.value / 1000),
-                    backgroundColor: ethereumColorLight,
                     borderColor: ethereumColor,
-                    borderWidth: 1
+                    backgroundColor: ethereumColorLight,
+                    fill: false,
+                    tension: 0.4,
+                    pointRadius: 2,
+                    pointHoverRadius: 6
                 }]
             },
             options: {
                 ...chartDefaults,
+                responsive: true,
+                maintainAspectRatio: false,
                 plugins: {
                     ...chartDefaults.plugins,
+                    legend: {
+                        display: true,
+                        position: 'top'
+                    },
                     tooltip: {
                         ...chartDefaults.plugins.tooltip,
                         callbacks: {
                             label: function(context) {
-                                return 'Active Addresses: ' + context.parsed.y.toFixed(0) + 'K';
+                                return context.dataset.label + ': ' + context.parsed.y.toFixed(0) + 'K';
                             }
                         }
                     }
                 },
                 scales: {
-                    y: yAxisConfig
+                    y: yAxisConfig,
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Date'
+                        }
+                    }
                 }
             }
         });
