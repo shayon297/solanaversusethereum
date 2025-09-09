@@ -90,33 +90,20 @@ document.addEventListener('DOMContentLoaded', function() {
         if (dates.length === 0) return [];
         
         const seenYears = new Set();
-        const seenJan2025 = new Set();
-        const firstDate = new Date(dates[0]);
-        const lastDate = new Date(dates[dates.length - 1]);
         
         return dates.map((dateStr, index) => {
             const date = new Date(dateStr);
             const year = date.getFullYear();
             const month = date.getMonth(); // 0 = January
             const isFirstOccurrenceOfYear = !seenYears.has(year);
-            const isLastEntry = index === dates.length - 1;
             
             if (isFirstOccurrenceOfYear) {
                 seenYears.add(year);
                 // Always show year for first occurrence of any year
                 return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-            } else if (isLastEntry && year !== firstDate.getFullYear()) {
-                // Also show year on last entry if it's a different year than first
-                return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
             } else {
                 // Regular format without year for subsequent dates in same year
-                const formattedDate = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-                // Hardcode ", 2025" for the FIRST January 2025 entry only
-                if (month === 0 && year === 2025 && !seenJan2025.has('jan2025')) {
-                    seenJan2025.add('jan2025');
-                    return formattedDate + ', 2025';
-                }
-                return formattedDate;
+                return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
             }
         });
     }
@@ -207,9 +194,9 @@ document.addEventListener('DOMContentLoaded', function() {
         const ethereumLabels = formatLabelsWithYear(revData.ethereum.map(d => d.date));
         const ethereumValues = revData.ethereum.map(d => d.value / 1000000); // Convert to millions
 
-        // Use logarithmic Y-axis for better comparison
+        // Use linear Y-axis for standard comparison
         const yAxisConfig = {
-            type: 'logarithmic',
+            beginAtZero: true,
             title: {
                 display: true,
                 text: 'Revenue ($ Millions)'
@@ -346,9 +333,9 @@ document.addEventListener('DOMContentLoaded', function() {
         const ethereumLabels = formatLabelsWithYear(appRevData.ethereum.map(d => d.date));
         const ethereumValues = appRevData.ethereum.map(d => d.value / 1000000); // Convert to millions
 
-        // Use logarithmic Y-axis for better comparison
+        // Use linear Y-axis for standard comparison
         const yAxisConfig = {
-            type: 'logarithmic',
+            beginAtZero: true,
             title: {
                 display: true,
                 text: 'Revenue ($ Millions)'
@@ -1361,9 +1348,9 @@ document.addEventListener('DOMContentLoaded', function() {
             return;
         }
 
-        // Use logarithmic Y-axis for better comparison
+        // Use linear Y-axis for standard comparison
         const yAxisConfig = {
-            type: 'logarithmic',
+            beginAtZero: true,
             title: {
                 display: true,
                 text: 'Volume (Billions USD)'
