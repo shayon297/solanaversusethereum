@@ -119,6 +119,18 @@ main {
     border: 1px solid #e9ecef;
 }
 
+.chart-container-large {
+    margin-bottom: 2rem;
+}
+
+.chart-wrapper-large {
+    background: #f8f9fa;
+    border-radius: 6px;
+    padding: 2rem;
+    border: 1px solid #e9ecef;
+    min-height: 500px;
+}
+
 .chart-wrapper.single {
     grid-column: 1 / -1;
     max-width: 600px;

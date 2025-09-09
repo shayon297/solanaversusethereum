@@ -221,66 +221,46 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         };
 
-        // Create Solana REV Chart
-        new Chart(document.getElementById('solana-rev'), {
+        // Create Combined REV Chart
+        new Chart(document.getElementById('combined-rev'), {
             type: 'line',
             data: {
-                labels: solanaLabels,
+                labels: solanaLabels, // Use Solana labels as primary
                 datasets: [{
-                    label: 'Real Economic Value ($M)',
+                    label: 'Solana REV ($M)',
                     data: solanaValues,
                     borderColor: solanaColor,
                     backgroundColor: solanaColorLight,
-                    fill: true,
+                    fill: false,
                     tension: 0.4,
-                    pointRadius: 1,
-                    pointHoverRadius: 5
-                }]
-            },
-            options: {
-                ...chartDefaults,
-                plugins: {
-                    ...chartDefaults.plugins,
-                    title: {
-                        display: true,
-                        text: 'Solana - Real Economic Value'
-                    }
-                },
-                scales: {
-                    y: yAxisConfig,
-                    x: {
-                        title: {
-                            display: true,
-                            text: 'Date'
-                        }
-                    }
-                }
-            }
-        });
-
-        // Create Ethereum REV Chart
-        new Chart(document.getElementById('ethereum-rev'), {
-            type: 'line',
-            data: {
-                labels: ethereumLabels,
-                datasets: [{
-                    label: 'Real Economic Value ($M)',
+                    pointRadius: 2,
+                    pointHoverRadius: 6
+                }, {
+                    label: 'Ethereum REV ($M)',
                     data: ethereumValues,
                     borderColor: ethereumColor,
                     backgroundColor: ethereumColorLight,
-                    fill: true,
+                    fill: false,
                     tension: 0.4,
-                    pointRadius: 1,
-                    pointHoverRadius: 5
+                    pointRadius: 2,
+                    pointHoverRadius: 6
                 }]
             },
             options: {
                 ...chartDefaults,
                 plugins: {
                     ...chartDefaults.plugins,
-                    title: {
+                    legend: {
                         display: true,
-                        text: 'Ethereum - Real Economic Value'
+                        position: 'top'
+                    },
+                    tooltip: {
+                        ...chartDefaults.plugins.tooltip,
+                        callbacks: {
+                            label: function(context) {
+                                return context.dataset.label + ': $' + context.parsed.y.toFixed(1) + 'M';
+                            }
+                        }
                     }
                 },
                 scales: {
@@ -377,47 +357,19 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         };
 
-        // Create Solana App Revenue Chart
-        new Chart(document.getElementById('solana-app-rev'), {
+        // Create Combined App Revenue Chart
+        new Chart(document.getElementById('combined-app-rev'), {
             type: 'bar',
             data: {
-                labels: solanaLabels,
+                labels: solanaLabels, // Use Solana labels as primary
                 datasets: [{
-                    label: 'App Revenue ($M)',
+                    label: 'Solana App Revenue ($M)',
                     data: solanaValues,
                     backgroundColor: solanaColorLight,
                     borderColor: solanaColor,
                     borderWidth: 1
-                }]
-            },
-            options: {
-                ...chartDefaults,
-                plugins: {
-                    ...chartDefaults.plugins,
-                    title: {
-                        display: true,
-                        text: 'Solana - Total Application Revenue (July 2024+)'
-                    }
-                },
-                scales: {
-                    y: yAxisConfig,
-                    x: {
-                        title: {
-                            display: true,
-                            text: 'Date'
-                        }
-                    }
-                }
-            }
-        });
-
-        // Create Ethereum App Revenue Chart
-        new Chart(document.getElementById('ethereum-app-rev'), {
-            type: 'bar',
-            data: {
-                labels: ethereumLabels,
-                datasets: [{
-                    label: 'App Revenue ($M)',
+                }, {
+                    label: 'Ethereum App Revenue ($M)',
                     data: ethereumValues,
                     backgroundColor: ethereumColorLight,
                     borderColor: ethereumColor,
@@ -428,9 +380,17 @@ document.addEventListener('DOMContentLoaded', function() {
                 ...chartDefaults,
                 plugins: {
                     ...chartDefaults.plugins,
-                    title: {
+                    legend: {
                         display: true,
-                        text: 'Ethereum - Total Application Revenue (July 2024+)'
+                        position: 'top'
+                    },
+                    tooltip: {
+                        ...chartDefaults.plugins.tooltip,
+                        callbacks: {
+                            label: function(context) {
+                                return context.dataset.label + ': $' + context.parsed.y.toFixed(1) + 'M';
+                            }
+                        }
                     }
                 },
                 scales: {
@@ -1404,68 +1364,47 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         };
 
-        // Solana DEX Volume Chart
+        // Combined DEX Volume Chart
         const solanaLabels = formatLabelsWithYear(data.solana.map(d => d.date));
-        new Chart(document.getElementById('solana-dex'), {
+        const ethereumLabels = formatLabelsWithYear(data.ethereum.map(d => d.date));
+        
+        new Chart(document.getElementById('combined-dex'), {
             type: 'line',
             data: {
-                labels: solanaLabels,
+                labels: solanaLabels, // Use Solana labels as primary
                 datasets: [{
-                    label: 'DEX Volume - 90-Day Rolling Average (Billions USD)',
+                    label: 'Solana DEX Volume (90-day avg)',
                     data: data.solana.map(d => d.value / 1000000000),
                     borderColor: solanaColor,
                     backgroundColor: solanaColorLight,
-                    fill: true,
+                    fill: false,
                     tension: 0.4,
                     pointRadius: 2,
-                    pointHoverRadius: 8
-                }]
-            },
-            options: {
-                ...chartDefaults,
-                plugins: {
-                    ...chartDefaults.plugins,
-                    tooltip: {
-                        ...chartDefaults.plugins.tooltip,
-                        callbacks: {
-                            label: function(context) {
-                                return 'DEX Volume (90-day avg): $' + context.parsed.y.toFixed(2) + 'B';
-                            }
-                        }
-                    }
-                },
-                scales: {
-                    y: yAxisConfig
-                }
-            }
-        });
-
-        // Ethereum DEX Volume Chart
-        const ethereumLabels = formatLabelsWithYear(data.ethereum.map(d => d.date));
-        new Chart(document.getElementById('ethereum-dex'), {
-            type: 'line',
-            data: {
-                labels: ethereumLabels,
-                datasets: [{
-                    label: 'DEX Volume - 90-Day Rolling Average (Billions USD)',
+                    pointHoverRadius: 6
+                }, {
+                    label: 'Ethereum DEX Volume (90-day avg)',
                     data: data.ethereum.map(d => d.value / 1000000000),
                     borderColor: ethereumColor,
                     backgroundColor: ethereumColorLight,
-                    fill: true,
+                    fill: false,
                     tension: 0.4,
                     pointRadius: 2,
-                    pointHoverRadius: 8
+                    pointHoverRadius: 6
                 }]
             },
             options: {
                 ...chartDefaults,
                 plugins: {
                     ...chartDefaults.plugins,
+                    legend: {
+                        display: true,
+                        position: 'top'
+                    },
                     tooltip: {
                         ...chartDefaults.plugins.tooltip,
                         callbacks: {
                             label: function(context) {
-                                return 'DEX Volume (90-day avg): $' + context.parsed.y.toFixed(2) + 'B';
+                                return context.dataset.label + ': $' + context.parsed.y.toFixed(2) + 'B';
                             }
                         }
                     }
