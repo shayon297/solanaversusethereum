@@ -212,9 +212,10 @@ document.addEventListener('DOMContentLoaded', function() {
             type: 'logarithmic',
             title: {
                 display: true,
-                text: 'REV - 90-Day Rolling Average ($ Millions) - Log Scale'
+                text: 'Revenue ($ Millions)'
             },
             ticks: {
+                maxTicksLimit: 5, // Reduce tick density by half
                 callback: function(value) {
                     return '$' + value.toFixed(1) + 'M';
                 }
@@ -350,9 +351,10 @@ document.addEventListener('DOMContentLoaded', function() {
             type: 'logarithmic',
             title: {
                 display: true,
-                text: 'App Revenue - 90-Day Rolling Average ($ Millions) - Log Scale'
+                text: 'Revenue ($ Millions)'
             },
             ticks: {
+                maxTicksLimit: 5, // Reduce tick density by half
                 callback: function(value) {
                     return '$' + value.toFixed(1) + 'M';
                 }
@@ -1364,7 +1366,13 @@ document.addEventListener('DOMContentLoaded', function() {
             type: 'logarithmic',
             title: {
                 display: true,
-                text: 'DEX Volume - 90-Day Rolling Average (Billions USD) - Log Scale'
+                text: 'Volume (Billions USD)'
+            },
+            ticks: {
+                maxTicksLimit: 5, // Reduce tick density by half
+                callback: function(value) {
+                    return '$' + value.toFixed(1) + 'B';
+                }
             }
         };
 

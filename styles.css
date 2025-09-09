@@ -143,6 +143,14 @@ main {
     width: 100%;
 }
 
+.chart-subtitle {
+    font-size: 0.9rem;
+    color: #666;
+    margin: 0.5rem 0 1rem 0;
+    font-weight: 400;
+    font-style: italic;
+}
+
 .chart-wrapper.single {
     grid-column: 1 / -1;
     max-width: 600px;
