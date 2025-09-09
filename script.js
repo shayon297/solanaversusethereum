@@ -207,21 +207,12 @@ document.addEventListener('DOMContentLoaded', function() {
         const ethereumLabels = formatLabelsWithYear(revData.ethereum.map(d => d.date));
         const ethereumValues = revData.ethereum.map(d => d.value / 1000000); // Convert to millions
 
-        // Find the maximum value across both datasets for consistent Y-axis
-        const maxSolana = Math.max(...solanaValues);
-        const maxEthereum = Math.max(...ethereumValues);
-        const maxValue = Math.max(maxSolana, maxEthereum);
-        const yAxisMax = Math.ceil(maxValue * 1.1); // Add 10% padding
-        
-        // Use consistent Y-axis values
-        const yAxisSteps = Math.ceil(yAxisMax / 10);
+        // Use logarithmic Y-axis for better comparison
         const yAxisConfig = {
-            beginAtZero: true,
-            max: yAxisMax,
-            stepSize: yAxisSteps,
+            type: 'logarithmic',
             title: {
                 display: true,
-                text: 'REV - 90-Day Rolling Average ($ Millions)'
+                text: 'REV - 90-Day Rolling Average ($ Millions) - Log Scale'
             },
             ticks: {
                 callback: function(value) {
@@ -372,21 +363,12 @@ document.addEventListener('DOMContentLoaded', function() {
         const ethereumLabels = formatLabelsWithYear(appRevData.ethereum.map(d => d.date));
         const ethereumValues = appRevData.ethereum.map(d => d.value / 1000000); // Convert to millions
 
-        // Find the maximum value across both datasets for consistent Y-axis
-        const maxSolana = Math.max(...solanaValues);
-        const maxEthereum = Math.max(...ethereumValues);
-        const maxValue = Math.max(maxSolana, maxEthereum);
-        const yAxisMax = Math.ceil(maxValue * 1.1); // Add 10% padding
-        
-        // Use consistent Y-axis values
-        const yAxisSteps = Math.ceil(yAxisMax / 10);
+        // Use logarithmic Y-axis for better comparison
         const yAxisConfig = {
-            beginAtZero: true,
-            max: yAxisMax,
-            stepSize: yAxisSteps,
+            type: 'logarithmic',
             title: {
                 display: true,
-                text: 'REV - 90-Day Rolling Average ($ Millions)'
+                text: 'App Revenue - 90-Day Rolling Average ($ Millions) - Log Scale'
             },
             ticks: {
                 callback: function(value) {
@@ -1413,21 +1395,12 @@ document.addEventListener('DOMContentLoaded', function() {
             return;
         }
 
-        // Find the maximum value across both datasets for consistent Y-axis
-        const maxSolana = Math.max(...data.solana.map(d => d.value / 1000000000));
-        const maxEthereum = Math.max(...data.ethereum.map(d => d.value / 1000000000));
-        const maxValue = Math.max(maxSolana, maxEthereum);
-        const yAxisMax = Math.ceil(maxValue * 1.1); // Add 10% padding
-        
-        // Use consistent Y-axis values
-        const yAxisSteps = Math.ceil(yAxisMax / 10);
+        // Use logarithmic Y-axis for better comparison
         const yAxisConfig = {
-            beginAtZero: true,
-            max: yAxisMax,
-            stepSize: yAxisSteps,
+            type: 'logarithmic',
             title: {
                 display: true,
-                text: 'DEX Volume - 90-Day Rolling Average (Billions USD)'
+                text: 'DEX Volume - 90-Day Rolling Average (Billions USD) - Log Scale'
             }
         };
 
