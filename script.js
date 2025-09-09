@@ -1213,17 +1213,21 @@ document.addEventListener('DOMContentLoaded', function() {
             return;
         }
 
-        // Use linear Y-axis with reduced ticks
+        // Use linear Y-axis with reduced ticks and smart formatting
         const yAxisConfig = {
             beginAtZero: true,
             title: {
                 display: true,
-                text: 'Daily Active Addresses (Thousands)'
+                text: 'Daily Active Addresses'
             },
             ticks: {
                 maxTicksLimit: 5, // Reduce tick density by half
                 callback: function(value) {
-                    return value.toFixed(0) + 'K';
+                    if (value >= 1000) {
+                        return (value / 1000).toFixed(1) + 'M';
+                    } else {
+                        return value.toFixed(0) + 'K';
+                    }
                 }
             }
         };
@@ -1235,7 +1239,7 @@ document.addEventListener('DOMContentLoaded', function() {
             data: {
                 labels: solanaLabels, // Use Solana labels as primary
                 datasets: [{
-                    label: 'Solana Active Addresses (K)',
+                    label: 'Solana Active Addresses',
                     data: data.solana.map(d => d.value / 1000),
                     borderColor: solanaColor,
                     backgroundColor: solanaColorLight,
@@ -1244,7 +1248,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     pointRadius: 2,
                     pointHoverRadius: 6
                 }, {
-                    label: 'Ethereum Active Addresses (K)',
+                    label: 'Ethereum Active Addresses',
                     data: data.ethereum.map(d => d.value / 1000),
                     borderColor: ethereumColor,
                     backgroundColor: ethereumColorLight,
@@ -1268,7 +1272,12 @@ document.addEventListener('DOMContentLoaded', function() {
                         ...chartDefaults.plugins.tooltip,
                         callbacks: {
                             label: function(context) {
-                                return context.dataset.label + ': ' + context.parsed.y.toFixed(0) + 'K';
+                                const value = context.parsed.y;
+                                if (value >= 1000) {
+                                    return context.dataset.label + ': ' + (value / 1000).toFixed(1) + 'M';
+                                } else {
+                                    return context.dataset.label + ': ' + value.toFixed(0) + 'K';
+                                }
                             }
                         }
                     }
