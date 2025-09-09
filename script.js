@@ -194,9 +194,9 @@ document.addEventListener('DOMContentLoaded', function() {
         const ethereumLabels = formatLabelsWithYear(revData.ethereum.map(d => d.date));
         const ethereumValues = revData.ethereum.map(d => d.value / 1000000); // Convert to millions
 
-        // Use linear Y-axis for standard comparison
+        // Use logarithmic Y-axis for better comparison
         const yAxisConfig = {
-            beginAtZero: true,
+            type: 'logarithmic',
             title: {
                 display: true,
                 text: 'Revenue ($ Millions)'
@@ -211,27 +211,21 @@ document.addEventListener('DOMContentLoaded', function() {
 
         // Create Combined REV Chart
         new Chart(document.getElementById('combined-rev'), {
-            type: 'line',
+            type: 'bar',
             data: {
                 labels: solanaLabels, // Use Solana labels as primary
                 datasets: [{
                     label: 'Solana REV ($M)',
                     data: solanaValues,
-                    borderColor: solanaColor,
                     backgroundColor: solanaColorLight,
-                    fill: false,
-                    tension: 0.4,
-                    pointRadius: 2,
-                    pointHoverRadius: 6
+                    borderColor: solanaColor,
+                    borderWidth: 1
                 }, {
                     label: 'Ethereum REV ($M)',
                     data: ethereumValues,
-                    borderColor: ethereumColor,
                     backgroundColor: ethereumColorLight,
-                    fill: false,
-                    tension: 0.4,
-                    pointRadius: 2,
-                    pointHoverRadius: 6
+                    borderColor: ethereumColor,
+                    borderWidth: 1
                 }]
             },
             options: {
@@ -1368,27 +1362,21 @@ document.addEventListener('DOMContentLoaded', function() {
         const ethereumLabels = formatLabelsWithYear(data.ethereum.map(d => d.date));
         
         new Chart(document.getElementById('combined-dex'), {
-            type: 'line',
+            type: 'bar',
             data: {
                 labels: solanaLabels, // Use Solana labels as primary
                 datasets: [{
                     label: 'Solana DEX Volume (90-day avg)',
                     data: data.solana.map(d => d.value / 1000000000),
-                    borderColor: solanaColor,
                     backgroundColor: solanaColorLight,
-                    fill: false,
-                    tension: 0.4,
-                    pointRadius: 2,
-                    pointHoverRadius: 6
+                    borderColor: solanaColor,
+                    borderWidth: 1
                 }, {
                     label: 'Ethereum DEX Volume (90-day avg)',
                     data: data.ethereum.map(d => d.value / 1000000000),
-                    borderColor: ethereumColor,
                     backgroundColor: ethereumColorLight,
-                    fill: false,
-                    tension: 0.4,
-                    pointRadius: 2,
-                    pointHoverRadius: 6
+                    borderColor: ethereumColor,
+                    borderWidth: 1
                 }]
             },
             options: {
