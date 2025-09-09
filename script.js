@@ -481,19 +481,31 @@ document.addEventListener('DOMContentLoaded', function() {
             }
             
             // Load Ethereum DEX Volume data
-            const ethereumResponse = await fetch('DEX Volumes/Ethereum DEX Volume.csv');
+            const ethereumResponse = await fetch('DEX Volumes/Ethereum DEX Volumes.csv');
             const ethereumText = await ethereumResponse.text();
             const ethereumLines = ethereumText.trim().split('\n');
             
             const ethereumData = [];
             for (let i = 1; i < ethereumLines.length; i++) {
-                const [timestamp, date, volume] = ethereumLines[i].split(',');
+                const columns = ethereumLines[i].split(',');
+                const timestamp = columns[0];
+                const date = columns[1];
+                
+                // Sum all DEX volumes (columns 2 onwards)
+                let totalVolume = 0;
+                for (let j = 2; j < columns.length; j++) {
+                    const volume = parseFloat(columns[j]);
+                    if (!isNaN(volume)) {
+                        totalVolume += volume;
+                    }
+                }
+                
                 const dateObj = new Date(date);
                 // Filter to start from July 2024
                 if (dateObj >= new Date('2024-07-01')) {
                     ethereumData.push({
                         date: date,
-                        value: parseFloat(volume)
+                        value: totalVolume
                     });
                 }
             }
