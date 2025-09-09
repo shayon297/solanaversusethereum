@@ -451,19 +451,31 @@ document.addEventListener('DOMContentLoaded', function() {
     async function loadDEXVolumeData() {
         try {
             // Load Solana DEX Volume data
-            const solanaResponse = await fetch('DEX Volumes/Solana DEX Volume.csv');
+            const solanaResponse = await fetch('DEX Volumes/Solana DEX Volumes.csv');
             const solanaText = await solanaResponse.text();
             const solanaLines = solanaText.trim().split('\n');
             
             const solanaData = [];
             for (let i = 1; i < solanaLines.length; i++) {
-                const [timestamp, date, volume] = solanaLines[i].split(',');
+                const columns = solanaLines[i].split(',');
+                const timestamp = columns[0];
+                const date = columns[1];
+                
+                // Sum all DEX volumes (columns 2 onwards)
+                let totalVolume = 0;
+                for (let j = 2; j < columns.length; j++) {
+                    const volume = parseFloat(columns[j]);
+                    if (!isNaN(volume)) {
+                        totalVolume += volume;
+                    }
+                }
+                
                 const dateObj = new Date(date);
                 // Filter to start from July 2024
                 if (dateObj >= new Date('2024-07-01')) {
                     solanaData.push({
                         date: date,
-                        value: parseFloat(volume)
+                        value: totalVolume
                     });
                 }
             }
