@@ -69,6 +69,22 @@ document.addEventListener('DOMContentLoaded', function() {
     const solanaColorLight = 'rgba(153, 69, 255, 0.3)';
     const ethereumColorLight = 'rgba(98, 126, 234, 0.3)';
 
+    // Helper function to calculate rolling 90-day average
+    function calculateRolling90DayAverage(data) {
+        if (data.length < 90) return data; // Return original if not enough data
+        
+        const rollingData = [];
+        for (let i = 89; i < data.length; i++) { // Start from 90th element (index 89)
+            const sum = data.slice(i - 89, i + 1).reduce((acc, item) => acc + item.value, 0);
+            const average = sum / 90;
+            rollingData.push({
+                date: data[i].date,
+                value: average
+            });
+        }
+        return rollingData;
+    }
+
     // Helper function to format labels with year changes
     function formatLabelsWithYear(dates) {
         if (dates.length === 0) return [];
@@ -160,7 +176,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             }
             
-            return { solana: solanaData, ethereum: ethereumData };
+            // Apply rolling 90-day averages
+            const solanaRolling = calculateRolling90DayAverage(solanaData);
+            const ethereumRolling = calculateRolling90DayAverage(ethereumData);
+            
+            return { solana: solanaRolling, ethereum: ethereumRolling };
         } catch (error) {
             console.error('Error loading REV data:', error);
             return null;
@@ -201,7 +221,7 @@ document.addEventListener('DOMContentLoaded', function() {
             stepSize: yAxisSteps,
             title: {
                 display: true,
-                text: 'Revenue ($ Millions)'
+                text: 'REV - 90-Day Rolling Average ($ Millions)'
             },
             ticks: {
                 callback: function(value) {
@@ -325,7 +345,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             }
             
-            return { solana: solanaData, ethereum: ethereumData };
+            // Apply rolling 90-day averages
+            const solanaRolling = calculateRolling90DayAverage(solanaData);
+            const ethereumRolling = calculateRolling90DayAverage(ethereumData);
+            
+            return { solana: solanaRolling, ethereum: ethereumRolling };
         } catch (error) {
             console.error('Error loading App Revenue data:', error);
             return null;
@@ -362,7 +386,7 @@ document.addEventListener('DOMContentLoaded', function() {
             stepSize: yAxisSteps,
             title: {
                 display: true,
-                text: 'Revenue ($ Millions)'
+                text: 'REV - 90-Day Rolling Average ($ Millions)'
             },
             ticks: {
                 callback: function(value) {
@@ -475,7 +499,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         beginAtZero: true,
                         title: {
                             display: true,
-                            text: 'Revenue ($ Millions)'
+                            text: 'REV - 90-Day Rolling Average ($ Millions)'
                         },
                         ticks: {
                             callback: function(value) {
@@ -533,7 +557,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             }
             
-            return { solana: solanaData, ethereum: ethereumData };
+            // Apply rolling 90-day averages
+            const solanaRolling = calculateRolling90DayAverage(solanaData);
+            const ethereumRolling = calculateRolling90DayAverage(ethereumData);
+            
+            return { solana: solanaRolling, ethereum: ethereumRolling };
         } catch (error) {
             console.error('Error loading DEX Volume data:', error);
             return null;
@@ -1399,7 +1427,7 @@ document.addEventListener('DOMContentLoaded', function() {
             stepSize: yAxisSteps,
             title: {
                 display: true,
-                text: 'Daily Volume (Billions USD)'
+                text: 'DEX Volume - 90-Day Rolling Average (Billions USD)'
             }
         };
 
@@ -1410,7 +1438,7 @@ document.addEventListener('DOMContentLoaded', function() {
             data: {
                 labels: solanaLabels,
                 datasets: [{
-                    label: 'Daily DEX Volume (Billions USD)',
+                    label: 'DEX Volume - 90-Day Rolling Average (Billions USD)',
                     data: data.solana.map(d => d.value / 1000000000),
                     borderColor: solanaColor,
                     backgroundColor: solanaColorLight,
@@ -1428,7 +1456,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         ...chartDefaults.plugins.tooltip,
                         callbacks: {
                             label: function(context) {
-                                return 'DEX Volume: $' + context.parsed.y.toFixed(2) + 'B';
+                                return 'DEX Volume (90-day avg): $' + context.parsed.y.toFixed(2) + 'B';
                             }
                         }
                     }
@@ -1446,7 +1474,7 @@ document.addEventListener('DOMContentLoaded', function() {
             data: {
                 labels: ethereumLabels,
                 datasets: [{
-                    label: 'Daily DEX Volume (Billions USD)',
+                    label: 'DEX Volume - 90-Day Rolling Average (Billions USD)',
                     data: data.ethereum.map(d => d.value / 1000000000),
                     borderColor: ethereumColor,
                     backgroundColor: ethereumColorLight,
@@ -1464,7 +1492,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         ...chartDefaults.plugins.tooltip,
                         callbacks: {
                             label: function(context) {
-                                return 'DEX Volume: $' + context.parsed.y.toFixed(2) + 'B';
+                                return 'DEX Volume (90-day avg): $' + context.parsed.y.toFixed(2) + 'B';
                             }
                         }
                     }
@@ -1638,7 +1666,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         beginAtZero: true,
                         title: {
                             display: true,
-                            text: 'Daily Volume (Billions USD)'
+                            text: 'DEX Volume - 90-Day Rolling Average (Billions USD)'
                         }
                     }
                 }
