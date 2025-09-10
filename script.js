@@ -138,8 +138,13 @@ document.addEventListener('DOMContentLoaded', function() {
                 const line = solanaLines[i].trim();
                 if (!line) continue;
                 
-                const [date, rev] = line.split(',');
-                const dateObj = new Date(date.trim());
+                // Handle CSV with quoted values containing commas
+                const commaIndex = line.indexOf(',');
+                if (commaIndex === -1) continue;
+                
+                const date = line.substring(0, commaIndex).trim();
+                const rev = line.substring(commaIndex + 1).trim();
+                const dateObj = new Date(date);
                 
                 // Filter to start from June 2024 (H1 2024)
                 if (dateObj >= new Date('2024-06-01')) {
@@ -149,7 +154,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     
                     if (!isNaN(numericValue)) {
                         solanaData.push({
-                            date: date.trim(),
+                            date: date,
                             value: numericValue
                         });
                     }
@@ -166,8 +171,13 @@ document.addEventListener('DOMContentLoaded', function() {
                 const line = ethereumLines[i].trim();
                 if (!line) continue;
                 
-                const [date, rev] = line.split(',');
-                const dateObj = new Date(date.trim());
+                // Handle CSV with quoted values containing commas
+                const commaIndex = line.indexOf(',');
+                if (commaIndex === -1) continue;
+                
+                const date = line.substring(0, commaIndex).trim();
+                const rev = line.substring(commaIndex + 1).trim();
+                const dateObj = new Date(date);
                 
                 // Filter to start from June 2024 (H1 2024)
                 if (dateObj >= new Date('2024-06-01')) {
@@ -177,7 +187,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     
                     if (!isNaN(numericValue)) {
                         ethereumData.push({
-                            date: date.trim(),
+                            date: date,
                             value: numericValue
                         });
                     }
@@ -216,14 +226,31 @@ document.addEventListener('DOMContentLoaded', function() {
             return;
         }
 
+        // Get chart element and destroy any existing chart
+        const chartElement = document.getElementById('combined-rev');
+        if (!chartElement) {
+            console.error('Chart element not found');
+            return;
+        }
+        
+        // Destroy existing chart if it exists
+        if (window.revChart) {
+            window.revChart.destroy();
+        }
+
         // Extract dates and values 
         const solanaLabels = formatLabelsWithYear(revData.solana.map(d => d.date));
         const solanaValues = revData.solana.map(d => d.value / 1000000); // Convert to millions
         
         const ethereumValues = revData.ethereum.map(d => d.value / 1000000); // Convert to millions
 
+        // Debug the actual values
+        console.log('Sample Solana values:', solanaValues.slice(-5));
+        console.log('Sample Ethereum values:', ethereumValues.slice(-5));
+        console.log('Value types:', typeof solanaValues[0], typeof ethereumValues[0]);
+
         // Create Combined REV Chart - two series on one chart
-        new Chart(document.getElementById('combined-rev'), {
+        window.revChart = new Chart(chartElement, {
             type: 'bar',
             data: {
                 labels: solanaLabels,
@@ -1412,13 +1439,15 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Initialize all charts
-    initializeREVCharts();
-    initializeAppRevenueCharts();
-    initializeAFPUCharts();
-    initializeTransactionCharts();
-    initializeActiveAddressesCharts();
-    initializeDEXVolumeCharts();
+    // Initialize all charts with a small delay to ensure DOM is ready
+    setTimeout(() => {
+        initializeREVCharts();
+        initializeAppRevenueCharts();
+        initializeAFPUCharts();
+        initializeTransactionCharts();
+        initializeActiveAddressesCharts();
+        initializeDEXVolumeCharts();
+    }, 100);
     
     console.log('All charts initialized successfully');
 });
