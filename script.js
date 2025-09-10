@@ -256,10 +256,16 @@ document.addEventListener('DOMContentLoaded', function() {
 
         // Extract dates and values with year-aware formatting
         const solanaLabels = formatLabelsWithYear(revData.solana.map(d => d.date));
-        const solanaValues = revData.solana.map(d => d.value / 1000000); // Convert to millions
+        const solanaValues = revData.solana.map(d => {
+            const value = d.value / 1000000; // Convert to millions
+            return isNaN(value) ? 0 : value; // Ensure no NaN values
+        });
         
         const ethereumLabels = formatLabelsWithYear(revData.ethereum.map(d => d.date));
-        const ethereumValues = revData.ethereum.map(d => d.value / 1000000); // Convert to millions
+        const ethereumValues = revData.ethereum.map(d => {
+            const value = d.value / 1000000; // Convert to millions
+            return isNaN(value) ? 0 : value; // Ensure no NaN values
+        });
 
         // Debug the chart data
         console.log('REV Chart data:');
@@ -286,7 +292,8 @@ document.addEventListener('DOMContentLoaded', function() {
         };
 
         // Create Combined REV Chart
-        new Chart(document.getElementById('combined-rev'), {
+        try {
+            const chart = new Chart(document.getElementById('combined-rev'), {
             type: 'bar',
             data: {
                 labels: solanaLabels, // Use Solana labels as primary
@@ -333,7 +340,12 @@ document.addEventListener('DOMContentLoaded', function() {
                     }
                 }
             }
-        });
+            });
+            console.log('REV Chart created successfully');
+        } catch (error) {
+            console.error('Failed to create REV chart:', error);
+            console.error('Chart element:', document.getElementById('combined-rev'));
+        }
     }
 
 
