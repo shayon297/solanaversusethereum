@@ -134,18 +134,31 @@ document.addEventListener('DOMContentLoaded', function() {
             
             const solanaData = [];
             for (let i = 1; i < solanaLines.length; i++) {
-                const [time, rev] = solanaLines[i].split(',');
+                const line = solanaLines[i].trim();
+                if (!line) continue;
+                
+                // Handle CSV parsing more carefully for quoted values
+                const parts = line.split(',');
+                if (parts.length < 2) continue;
+                
+                const time = parts[0].trim();
+                const rev = parts[1].trim();
                 const dateObj = new Date(time);
+                
                 // Filter to start from June 2024 (H1 2024)
                 if (dateObj >= new Date('2024-06-01')) {
                     // Convert ISO date to YYYY-MM-DD format
                     const formattedDate = dateObj.toISOString().split('T')[0];
-                    // Parse dollar value by removing $ and commas
-                    const cleanValue = rev.replace(/[$,"]/g, '');
-                    solanaData.push({
-                        date: formattedDate,
-                        value: parseFloat(cleanValue)
-                    });
+                    // Parse dollar value by removing $ and commas and quotes
+                    const cleanValue = rev.replace(/[$,"\s]/g, '');
+                    const numericValue = parseFloat(cleanValue);
+                    
+                    if (!isNaN(numericValue)) {
+                        solanaData.push({
+                            date: formattedDate,
+                            value: numericValue
+                        });
+                    }
                 }
             }
             
@@ -156,18 +169,31 @@ document.addEventListener('DOMContentLoaded', function() {
             
             const ethereumData = [];
             for (let i = 1; i < ethereumLines.length; i++) {
-                const [time, rev] = ethereumLines[i].split(',');
+                const line = ethereumLines[i].trim();
+                if (!line) continue;
+                
+                // Handle CSV parsing more carefully for quoted values
+                const parts = line.split(',');
+                if (parts.length < 2) continue;
+                
+                const time = parts[0].trim();
+                const rev = parts[1].trim();
                 const dateObj = new Date(time);
+                
                 // Filter to start from June 2024 (H1 2024)
                 if (dateObj >= new Date('2024-06-01')) {
                     // Convert ISO date to YYYY-MM-DD format
                     const formattedDate = dateObj.toISOString().split('T')[0];
-                    // Parse dollar value by removing $ and commas
-                    const cleanValue = rev.replace(/[$,"]/g, '');
-                    ethereumData.push({
-                        date: formattedDate,
-                        value: parseFloat(cleanValue)
-                    });
+                    // Parse dollar value by removing $ and commas and quotes
+                    const cleanValue = rev.replace(/[$,"\s]/g, '');
+                    const numericValue = parseFloat(cleanValue);
+                    
+                    if (!isNaN(numericValue)) {
+                        ethereumData.push({
+                            date: formattedDate,
+                            value: numericValue
+                        });
+                    }
                 }
             }
             
@@ -178,6 +204,19 @@ document.addEventListener('DOMContentLoaded', function() {
             // Apply rolling 90-day averages
             const solanaRolling = calculateRolling90DayAverage(solanaData);
             const ethereumRolling = calculateRolling90DayAverage(ethereumData);
+            
+            // Debug logging
+            console.log('REV Data loaded:');
+            console.log('Solana raw data points:', solanaData.length);
+            console.log('Ethereum raw data points:', ethereumData.length);
+            console.log('Solana rolling data points:', solanaRolling.length);
+            console.log('Ethereum rolling data points:', ethereumRolling.length);
+            if (solanaRolling.length > 0) {
+                console.log('Sample Solana rolling value:', solanaRolling[solanaRolling.length - 1]);
+            }
+            if (ethereumRolling.length > 0) {
+                console.log('Sample Ethereum rolling value:', ethereumRolling[ethereumRolling.length - 1]);
+            }
             
             return { solana: solanaRolling, ethereum: ethereumRolling };
         } catch (error) {
