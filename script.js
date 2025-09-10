@@ -127,9 +127,9 @@ document.addEventListener('DOMContentLoaded', function() {
     // Load REV data from CSV files
     async function loadREVData() {
         try {
-            // Load Solana REV data with cache busting
+            // Load Solana REV data
             const timestamp = new Date().getTime();
-            const solanaResponse = await fetch(`REV Charts/Solana REV.csv?t=${timestamp}`);
+            const solanaResponse = await fetch(`REV Charts/Solana REV Charts Final.csv?t=${timestamp}`);
             const solanaText = await solanaResponse.text();
             const solanaLines = solanaText.trim().split('\n');
             
@@ -138,33 +138,26 @@ document.addEventListener('DOMContentLoaded', function() {
                 const line = solanaLines[i].trim();
                 if (!line) continue;
                 
-                // Handle CSV parsing more carefully for quoted values
-                const parts = line.split(',');
-                if (parts.length < 2) continue;
-                
-                const time = parts[0].trim();
-                const rev = parts[1].trim();
-                const dateObj = new Date(time);
+                const [date, rev] = line.split(',');
+                const dateObj = new Date(date.trim());
                 
                 // Filter to start from June 2024 (H1 2024)
                 if (dateObj >= new Date('2024-06-01')) {
-                    // Convert ISO date to YYYY-MM-DD format
-                    const formattedDate = dateObj.toISOString().split('T')[0];
-                    // Parse dollar value by removing $ and commas and quotes
-                    const cleanValue = rev.replace(/[$,"\s]/g, '');
+                    // Parse dollar value by removing quotes and commas
+                    const cleanValue = rev.replace(/[",]/g, '');
                     const numericValue = parseFloat(cleanValue);
                     
                     if (!isNaN(numericValue)) {
                         solanaData.push({
-                            date: formattedDate,
+                            date: date.trim(),
                             value: numericValue
                         });
                     }
                 }
             }
             
-            // Load Ethereum REV data with cache busting
-            const ethereumResponse = await fetch(`REV Charts/Ethereum REV.csv?t=${timestamp}`);
+            // Load Ethereum REV data
+            const ethereumResponse = await fetch(`REV Charts/Ethereum REV Charts Final.csv?t=${timestamp}`);
             const ethereumText = await ethereumResponse.text();
             const ethereumLines = ethereumText.trim().split('\n');
             
@@ -173,25 +166,18 @@ document.addEventListener('DOMContentLoaded', function() {
                 const line = ethereumLines[i].trim();
                 if (!line) continue;
                 
-                // Handle CSV parsing more carefully for quoted values
-                const parts = line.split(',');
-                if (parts.length < 2) continue;
-                
-                const time = parts[0].trim();
-                const rev = parts[1].trim();
-                const dateObj = new Date(time);
+                const [date, rev] = line.split(',');
+                const dateObj = new Date(date.trim());
                 
                 // Filter to start from June 2024 (H1 2024)
                 if (dateObj >= new Date('2024-06-01')) {
-                    // Convert ISO date to YYYY-MM-DD format
-                    const formattedDate = dateObj.toISOString().split('T')[0];
-                    // Parse dollar value by removing $ and commas and quotes
-                    const cleanValue = rev.replace(/[$,"\s]/g, '');
+                    // Parse dollar value by removing quotes and commas
+                    const cleanValue = rev.replace(/[",]/g, '');
                     const numericValue = parseFloat(cleanValue);
                     
                     if (!isNaN(numericValue)) {
                         ethereumData.push({
-                            date: formattedDate,
+                            date: date.trim(),
                             value: numericValue
                         });
                     }
@@ -206,26 +192,9 @@ document.addEventListener('DOMContentLoaded', function() {
             const solanaRolling = calculateRolling90DayAverage(solanaData);
             const ethereumRolling = calculateRolling90DayAverage(ethereumData);
             
-            // Debug logging
-            console.log('REV Data loaded:');
-            console.log('Solana raw data points:', solanaData.length);
-            console.log('Ethereum raw data points:', ethereumData.length);
-            if (solanaData.length > 0) {
-                console.log('Solana sample raw values:', solanaData.slice(-3));
-            }
-            if (ethereumData.length > 0) {
-                console.log('Ethereum sample raw values:', ethereumData.slice(-3));
-            }
+            console.log('REV Data loaded successfully:');
             console.log('Solana rolling data points:', solanaRolling.length);
             console.log('Ethereum rolling data points:', ethereumRolling.length);
-            if (solanaRolling.length > 0) {
-                console.log('Sample Solana rolling value:', JSON.stringify(solanaRolling[solanaRolling.length - 1]));
-                console.log('Solana rolling value type:', typeof solanaRolling[solanaRolling.length - 1].value);
-            }
-            if (ethereumRolling.length > 0) {
-                console.log('Sample Ethereum rolling value:', JSON.stringify(ethereumRolling[ethereumRolling.length - 1]));
-                console.log('Ethereum rolling value type:', typeof ethereumRolling[ethereumRolling.length - 1].value);
-            }
             
             return { solana: solanaRolling, ethereum: ethereumRolling };
         } catch (error) {
@@ -238,73 +207,34 @@ document.addEventListener('DOMContentLoaded', function() {
     const labels18 = generateDateLabels(18);
     const labels36 = generateDateLabels36();
 
-    // Initialize charts with real data
+    // Initialize REV charts with clean implementation
     async function initializeREVCharts() {
         const revData = await loadREVData();
         
-        if (!revData) {
+        if (!revData || !revData.solana || !revData.ethereum) {
             console.error('Failed to load REV data');
             return;
         }
 
-        // Check if chart element exists
-        const chartElement = document.getElementById('combined-rev');
-        if (!chartElement) {
-            console.error('REV Chart element "combined-rev" not found in DOM');
-            return;
-        }
-
-        // Extract dates and values with year-aware formatting
+        // Extract dates and values 
         const solanaLabels = formatLabelsWithYear(revData.solana.map(d => d.date));
-        const solanaValues = revData.solana.map(d => {
-            const value = d.value / 1000000; // Convert to millions
-            return isNaN(value) ? 0 : value; // Ensure no NaN values
-        });
+        const solanaValues = revData.solana.map(d => d.value / 1000000); // Convert to millions
         
-        const ethereumLabels = formatLabelsWithYear(revData.ethereum.map(d => d.date));
-        const ethereumValues = revData.ethereum.map(d => {
-            const value = d.value / 1000000; // Convert to millions
-            return isNaN(value) ? 0 : value; // Ensure no NaN values
-        });
+        const ethereumValues = revData.ethereum.map(d => d.value / 1000000); // Convert to millions
 
-        // Debug the chart data
-        console.log('REV Chart data:');
-        console.log('Solana labels length:', solanaLabels.length);
-        console.log('Solana values length:', solanaValues.length);
-        console.log('Solana sample values:', solanaValues.slice(-3));
-        console.log('Ethereum labels length:', ethereumLabels.length);
-        console.log('Ethereum values length:', ethereumValues.length);
-        console.log('Ethereum sample values:', ethereumValues.slice(-3));
-
-        // Use linear Y-axis for standard comparison
-        const yAxisConfig = {
-            beginAtZero: true,
-            title: {
-                display: true,
-                text: 'Revenue ($ Millions)'
-            },
-            ticks: {
-                maxTicksLimit: 5, // Reduce tick density by half
-                callback: function(value) {
-                    return '$' + value.toFixed(1) + 'M';
-                }
-            }
-        };
-
-        // Create Combined REV Chart
-        try {
-            const chart = new Chart(document.getElementById('combined-rev'), {
+        // Create Combined REV Chart - two series on one chart
+        new Chart(document.getElementById('combined-rev'), {
             type: 'bar',
             data: {
-                labels: solanaLabels, // Use Solana labels as primary
+                labels: solanaLabels,
                 datasets: [{
-                    label: 'Solana REV ($M)',
+                    label: 'Solana REV (90-day avg)',
                     data: solanaValues,
                     backgroundColor: solanaColorLight,
                     borderColor: solanaColor,
                     borderWidth: 1
                 }, {
-                    label: 'Ethereum REV ($M)',
+                    label: 'Ethereum REV (90-day avg)',
                     data: ethereumValues,
                     backgroundColor: ethereumColorLight,
                     borderColor: ethereumColor,
@@ -331,7 +261,19 @@ document.addEventListener('DOMContentLoaded', function() {
                     }
                 },
                 scales: {
-                    y: yAxisConfig,
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Revenue ($ Millions)'
+                        },
+                        ticks: {
+                            maxTicksLimit: 5,
+                            callback: function(value) {
+                                return '$' + value.toFixed(1) + 'M';
+                            }
+                        }
+                    },
                     x: {
                         title: {
                             display: true,
@@ -340,12 +282,9 @@ document.addEventListener('DOMContentLoaded', function() {
                     }
                 }
             }
-            });
-            console.log('REV Chart created successfully');
-        } catch (error) {
-            console.error('Failed to create REV chart:', error);
-            console.error('Chart element:', document.getElementById('combined-rev'));
-        }
+        });
+        
+        console.log('REV Chart created with', solanaValues.length, 'data points');
     }
 
 
