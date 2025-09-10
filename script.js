@@ -134,13 +134,17 @@ document.addEventListener('DOMContentLoaded', function() {
             
             const solanaData = [];
             for (let i = 1; i < solanaLines.length; i++) {
-                const [date, rev] = solanaLines[i].split(',');
-                const dateObj = new Date(date);
-                // Filter to start from June 2024
+                const [time, rev] = solanaLines[i].split(',');
+                const dateObj = new Date(time);
+                // Filter to start from June 2024 (H1 2024)
                 if (dateObj >= new Date('2024-06-01')) {
+                    // Convert ISO date to YYYY-MM-DD format
+                    const formattedDate = dateObj.toISOString().split('T')[0];
+                    // Parse dollar value by removing $ and commas
+                    const cleanValue = rev.replace(/[$,"]/g, '');
                     solanaData.push({
-                        date: date,
-                        value: parseFloat(rev)
+                        date: formattedDate,
+                        value: parseFloat(cleanValue)
                     });
                 }
             }
@@ -152,16 +156,24 @@ document.addEventListener('DOMContentLoaded', function() {
             
             const ethereumData = [];
             for (let i = 1; i < ethereumLines.length; i++) {
-                const [date, fees] = ethereumLines[i].split(',');
-                const dateObj = new Date(date);
-                // Filter to start from June 2024
+                const [time, rev] = ethereumLines[i].split(',');
+                const dateObj = new Date(time);
+                // Filter to start from June 2024 (H1 2024)
                 if (dateObj >= new Date('2024-06-01')) {
+                    // Convert ISO date to YYYY-MM-DD format
+                    const formattedDate = dateObj.toISOString().split('T')[0];
+                    // Parse dollar value by removing $ and commas
+                    const cleanValue = rev.replace(/[$,"]/g, '');
                     ethereumData.push({
-                        date: date,
-                        value: parseFloat(fees)
+                        date: formattedDate,
+                        value: parseFloat(cleanValue)
                     });
                 }
             }
+            
+            // Sort by date (oldest first) for proper rolling average calculation
+            solanaData.sort((a, b) => new Date(a.date) - new Date(b.date));
+            ethereumData.sort((a, b) => new Date(a.date) - new Date(b.date));
             
             // Apply rolling 90-day averages
             const solanaRolling = calculateRolling90DayAverage(solanaData);
