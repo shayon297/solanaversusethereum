@@ -596,12 +596,16 @@ document.addEventListener('DOMContentLoaded', function() {
             beginAtZero: true,
             title: {
                 display: true,
-                text: 'Volume ($ Millions)'
+                text: 'Volume'
             },
             ticks: {
                 maxTicksLimit: 5, // Reduce tick density by half
                 callback: function(value) {
-                    return '$' + value.toFixed(1) + 'M';
+                    if (value >= 1000) {
+                        return '$' + (value / 1000).toFixed(1) + 'B';
+                    } else {
+                        return '$' + value.toFixed(1) + 'M';
+                    }
                 }
             }
         };
@@ -612,13 +616,13 @@ document.addEventListener('DOMContentLoaded', function() {
             data: {
                 labels: solanaLabels, // Use Solana labels as primary
                 datasets: [{
-                    label: 'Solana DEX Volume ($M)',
+                    label: 'Solana DEX Volume',
                     data: solanaValues,
                     backgroundColor: solanaColorLight,
                     borderColor: solanaColor,
                     borderWidth: 1
                 }, {
-                    label: 'Ethereum DEX Volume ($M)',
+                    label: 'Ethereum DEX Volume',
                     data: ethereumValues,
                     backgroundColor: ethereumColorLight,
                     borderColor: ethereumColor,
@@ -639,7 +643,12 @@ document.addEventListener('DOMContentLoaded', function() {
                         ...chartDefaults.plugins.tooltip,
                         callbacks: {
                             label: function(context) {
-                                return context.dataset.label + ': $' + context.parsed.y.toFixed(1) + 'M';
+                                const value = context.parsed.y;
+                                if (value >= 1000) {
+                                    return context.dataset.label + ': $' + (value / 1000).toFixed(1) + 'B';
+                                } else {
+                                    return context.dataset.label + ': $' + value.toFixed(1) + 'M';
+                                }
                             }
                         }
                     }
