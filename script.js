@@ -219,10 +219,12 @@ document.addEventListener('DOMContentLoaded', function() {
             console.log('Solana rolling data points:', solanaRolling.length);
             console.log('Ethereum rolling data points:', ethereumRolling.length);
             if (solanaRolling.length > 0) {
-                console.log('Sample Solana rolling value:', solanaRolling[solanaRolling.length - 1]);
+                console.log('Sample Solana rolling value:', JSON.stringify(solanaRolling[solanaRolling.length - 1]));
+                console.log('Solana rolling value type:', typeof solanaRolling[solanaRolling.length - 1].value);
             }
             if (ethereumRolling.length > 0) {
-                console.log('Sample Ethereum rolling value:', ethereumRolling[ethereumRolling.length - 1]);
+                console.log('Sample Ethereum rolling value:', JSON.stringify(ethereumRolling[ethereumRolling.length - 1]));
+                console.log('Ethereum rolling value type:', typeof ethereumRolling[ethereumRolling.length - 1].value);
             }
             
             return { solana: solanaRolling, ethereum: ethereumRolling };
@@ -245,12 +247,28 @@ document.addEventListener('DOMContentLoaded', function() {
             return;
         }
 
+        // Check if chart element exists
+        const chartElement = document.getElementById('combined-rev');
+        if (!chartElement) {
+            console.error('REV Chart element "combined-rev" not found in DOM');
+            return;
+        }
+
         // Extract dates and values with year-aware formatting
         const solanaLabels = formatLabelsWithYear(revData.solana.map(d => d.date));
         const solanaValues = revData.solana.map(d => d.value / 1000000); // Convert to millions
         
         const ethereumLabels = formatLabelsWithYear(revData.ethereum.map(d => d.date));
         const ethereumValues = revData.ethereum.map(d => d.value / 1000000); // Convert to millions
+
+        // Debug the chart data
+        console.log('REV Chart data:');
+        console.log('Solana labels length:', solanaLabels.length);
+        console.log('Solana values length:', solanaValues.length);
+        console.log('Solana sample values:', solanaValues.slice(-3));
+        console.log('Ethereum labels length:', ethereumLabels.length);
+        console.log('Ethereum values length:', ethereumValues.length);
+        console.log('Ethereum sample values:', ethereumValues.slice(-3));
 
         // Use linear Y-axis for standard comparison
         const yAxisConfig = {
