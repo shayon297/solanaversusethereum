@@ -127,8 +127,9 @@ document.addEventListener('DOMContentLoaded', function() {
     // Load REV data from CSV files
     async function loadREVData() {
         try {
-            // Load Solana REV data
-            const solanaResponse = await fetch('REV Charts/Solana REV.csv');
+            // Load Solana REV data with cache busting
+            const timestamp = new Date().getTime();
+            const solanaResponse = await fetch(`REV Charts/Solana REV.csv?t=${timestamp}`);
             const solanaText = await solanaResponse.text();
             const solanaLines = solanaText.trim().split('\n');
             
@@ -162,8 +163,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             }
             
-            // Load Ethereum REV data
-            const ethereumResponse = await fetch('REV Charts/Ethereum REV.csv');
+            // Load Ethereum REV data with cache busting
+            const ethereumResponse = await fetch(`REV Charts/Ethereum REV.csv?t=${timestamp}`);
             const ethereumText = await ethereumResponse.text();
             const ethereumLines = ethereumText.trim().split('\n');
             
@@ -209,6 +210,12 @@ document.addEventListener('DOMContentLoaded', function() {
             console.log('REV Data loaded:');
             console.log('Solana raw data points:', solanaData.length);
             console.log('Ethereum raw data points:', ethereumData.length);
+            if (solanaData.length > 0) {
+                console.log('Solana sample raw values:', solanaData.slice(-3));
+            }
+            if (ethereumData.length > 0) {
+                console.log('Ethereum sample raw values:', ethereumData.slice(-3));
+            }
             console.log('Solana rolling data points:', solanaRolling.length);
             console.log('Ethereum rolling data points:', ethereumRolling.length);
             if (solanaRolling.length > 0) {
