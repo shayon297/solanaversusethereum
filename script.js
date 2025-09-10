@@ -530,178 +530,73 @@ document.addEventListener('DOMContentLoaded', function() {
             return;
         }
 
-        // Extract dates and values, convert to millions
-        const solanaLabels = dexData.solana.map(d => new Date(d.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }));
+        // Extract dates and values with year-aware formatting
+        const solanaLabels = formatLabelsWithYear(dexData.solana.map(d => d.date));
         const solanaValues = dexData.solana.map(d => d.value / 1000000); // Convert to millions
         
-        const ethereumLabels = dexData.ethereum.map(d => new Date(d.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }));
+        const ethereumLabels = formatLabelsWithYear(dexData.ethereum.map(d => d.date));
         const ethereumValues = dexData.ethereum.map(d => d.value / 1000000); // Convert to millions
 
-        // Create Solana DEX Volume Chart
-        new Chart(document.getElementById('solana-dex'), {
-            type: 'line',
+        // Use linear Y-axis with reduced ticks
+        const yAxisConfig = {
+            beginAtZero: true,
+            title: {
+                display: true,
+                text: 'Volume ($ Millions)'
+            },
+            ticks: {
+                maxTicksLimit: 5, // Reduce tick density by half
+                callback: function(value) {
+                    return '$' + value.toFixed(1) + 'M';
+                }
+            }
+        };
+
+        // Create Combined DEX Volume Chart
+        new Chart(document.getElementById('combined-dex'), {
+            type: 'bar',
             data: {
-                labels: solanaLabels,
+                labels: solanaLabels, // Use Solana labels as primary
                 datasets: [{
-                    label: 'DEX Volume ($M)',
+                    label: 'Solana DEX Volume ($M)',
                     data: solanaValues,
-                    borderColor: solanaColor,
                     backgroundColor: solanaColorLight,
-                    fill: true,
-                    tension: 0.4,
-                    pointRadius: 1,
-                    pointHoverRadius: 5
-                }]
-            },
-            options: {
-                ...chartDefaults,
-                plugins: {
-                    ...chartDefaults.plugins,
-                    title: {
-                        display: true,
-                        text: 'Solana - DEX Volumes (July 2024+)'
-                    }
-                },
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        title: {
-                            display: true,
-                            text: 'Volume ($ Millions)'
-                        },
-                        ticks: {
-                            callback: function(value) {
-                                return '$' + value.toFixed(0) + 'M';
-                            }
-                        }
-                    },
-                    x: {
-                        title: {
-                            display: true,
-                            text: 'Date'
-                        }
-                    }
-                }
-            }
-        });
-
-        // Create Ethereum DEX Volume Chart
-        new Chart(document.getElementById('ethereum-dex'), {
-            type: 'line',
-            data: {
-                labels: ethereumLabels,
-                datasets: [{
-                    label: 'DEX Volume ($M)',
+                    borderColor: solanaColor,
+                    borderWidth: 1
+                }, {
+                    label: 'Ethereum DEX Volume ($M)',
                     data: ethereumValues,
-                    borderColor: ethereumColor,
                     backgroundColor: ethereumColorLight,
-                    fill: true,
-                    tension: 0.4,
-                    pointRadius: 1,
-                    pointHoverRadius: 5
+                    borderColor: ethereumColor,
+                    borderWidth: 1
                 }]
             },
             options: {
                 ...chartDefaults,
+                responsive: true,
+                maintainAspectRatio: false,
                 plugins: {
                     ...chartDefaults.plugins,
-                    title: {
+                    legend: {
                         display: true,
-                        text: 'Ethereum - DEX Volumes (July 2024+)'
+                        position: 'top'
+                    },
+                    tooltip: {
+                        ...chartDefaults.plugins.tooltip,
+                        callbacks: {
+                            label: function(context) {
+                                return context.dataset.label + ': $' + context.parsed.y.toFixed(1) + 'M';
+                            }
+                        }
                     }
                 },
                 scales: {
-                    y: {
-                        beginAtZero: true,
-                        title: {
-                            display: true,
-                            text: 'Volume ($ Millions)'
-                        },
-                        ticks: {
-                            callback: function(value) {
-                                return '$' + value.toFixed(0) + 'M';
-                            }
-                        }
-                    },
+                    y: yAxisConfig,
                     x: {
                         title: {
                             display: true,
                             text: 'Date'
                         }
-                    }
-                }
-            }
-        });
-
-        // Create DEX Volume Comparison Chart
-        new Chart(document.getElementById('dex-comparison'), {
-            type: 'line',
-            data: {
-                labels: solanaLabels.length >= ethereumLabels.length ? solanaLabels : ethereumLabels,
-                datasets: [
-                    {
-                        label: 'Solana ($M)',
-                        data: solanaValues,
-                        borderColor: solanaColor,
-                        backgroundColor: solanaColorLight,
-                        fill: false,
-                        tension: 0.4,
-                        pointRadius: 1,
-                        pointHoverRadius: 5
-                    },
-                    {
-                        label: 'Ethereum ($M)',
-                        data: ethereumValues,
-                        borderColor: ethereumColor,
-                        backgroundColor: ethereumColorLight,
-                        fill: false,
-                        tension: 0.4,
-                        pointRadius: 1,
-                        pointHoverRadius: 5,
-                        yAxisID: 'y1'
-                    }
-                ]
-            },
-            options: {
-                ...chartDefaults,
-                scales: {
-                    y: {
-                        type: 'linear',
-                        display: true,
-                        position: 'left',
-                        title: {
-                            display: true,
-                            text: 'Solana Volume ($M)'
-                        },
-                        ticks: {
-                            callback: function(value) {
-                                return '$' + value.toFixed(0) + 'M';
-                            }
-                        }
-                    },
-                    y1: {
-                        type: 'linear',
-                        display: true,
-                        position: 'right',
-                        title: {
-                            display: true,
-                            text: 'Ethereum Volume ($M)'
-                        },
-                        grid: {
-                            drawOnChartArea: false,
-                        },
-                        ticks: {
-                            callback: function(value) {
-                                return '$' + value.toFixed(0) + 'M';
-                            }
-                        }
-                    }
-                },
-                plugins: {
-                    ...chartDefaults.plugins,
-                    title: {
-                        display: true,
-                        text: 'DEX Volume Comparison (July 2024+)'
                     }
                 }
             }
@@ -1319,76 +1214,6 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Initialize individual DEX Volume charts
-    async function initializeDEXVolumeCharts() {
-        const data = await loadDEXVolumeData();
-        if (!data) {
-            console.error('Failed to load DEX volume data');
-            return;
-        }
-
-        // Use linear Y-axis for standard comparison
-        const yAxisConfig = {
-            beginAtZero: true,
-            title: {
-                display: true,
-                text: 'Volume (Billions USD)'
-            },
-            ticks: {
-                maxTicksLimit: 5, // Reduce tick density by half
-                callback: function(value) {
-                    return '$' + value.toFixed(1) + 'B';
-                }
-            }
-        };
-
-        // Combined DEX Volume Chart
-        const solanaLabels = formatLabelsWithYear(data.solana.map(d => d.date));
-        const ethereumLabels = formatLabelsWithYear(data.ethereum.map(d => d.date));
-        
-        new Chart(document.getElementById('combined-dex'), {
-            type: 'bar',
-            data: {
-                labels: solanaLabels, // Use Solana labels as primary
-                datasets: [{
-                    label: 'Solana DEX Volume (90-day avg)',
-                    data: data.solana.map(d => d.value / 1000000000),
-                    backgroundColor: solanaColorLight,
-                    borderColor: solanaColor,
-                    borderWidth: 1
-                }, {
-                    label: 'Ethereum DEX Volume (90-day avg)',
-                    data: data.ethereum.map(d => d.value / 1000000000),
-                    backgroundColor: ethereumColorLight,
-                    borderColor: ethereumColor,
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                ...chartDefaults,
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    ...chartDefaults.plugins,
-                    legend: {
-                        display: true,
-                        position: 'top'
-                    },
-                    tooltip: {
-                        ...chartDefaults.plugins.tooltip,
-                        callbacks: {
-                            label: function(context) {
-                                return context.dataset.label + ': $' + context.parsed.y.toFixed(2) + 'B';
-                            }
-                        }
-                    }
-                },
-                scales: {
-                    y: yAxisConfig
-                }
-            }
-        });
-    }
 
     async function createComparisonCharts() {
         // Wait for all data to load
